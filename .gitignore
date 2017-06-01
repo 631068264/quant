@@ -1,0 +1,10 @@
+.idea/
+.env/
+*.pyc
+.DS_Store
+config_global/
+base/
+tools/
+bundle/
+test/
+strategy/
