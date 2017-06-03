@@ -15,54 +15,13 @@ class RunInfo(object):
     """
 
     def __init__(self, config):
-        self._start_date = config.base.start_date
-        self._end_date = config.base.end_date
-        self._frequency = config.base.frequency
-        self._spot_starting_cash = config.base.spot_starting_cash
-        self._benchmark = config.base.benchmark
-        self._run_type = config.base.run_type
-
-    @property
-    def start_date(self):
-        """
-        :property getter: 策略的开始日期
-        """
-        return self._start_date
-
-    @property
-    def end_date(self):
-        """
-        :property getter: 策略的结束日期
-        """
-        return self._end_date
-
-    @property
-    def frequency(self):
-        """
-        :property getter: 策略频率，'1d'或'1m'
-        """
-        return self._frequency
-
-    @property
-    def spot_starting_cash(self):
-        """
-        :property getter: 期货账户初始资金
-        """
-        return self._spot_starting_cash
-
-    @property
-    def benchmark(self):
-        """
-        :property getter: 基准合约代码
-        """
-        return self._benchmark
-
-    @property
-    def run_type(self):
-        """
-        :property getter: 运行类型
-        """
-        return self._run_type
+        base_config = config.base
+        self.start_date = base_config.start_date
+        self.end_date = base_config.end_date
+        self.frequency = base_config.frequency
+        self.spot_starting_cash = base_config.spot_starting_cash
+        self.benchmark = base_config.benchmark
+        self.run_type = base_config.run_type
 
 
 class Context(object):
@@ -119,5 +78,5 @@ class Context(object):
         return Environment.get_instance().config
 
     @property
-    def benchmark(self):
-        raise NotImplementedError
+    def symbol(self):
+        return Environment.get_instance().config.base.symbol

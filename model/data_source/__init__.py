@@ -44,7 +44,7 @@ def update_bundle():
     for instrument in INSTRUMENT_DICT.values():
         # TODO fix limit
         data = QS(db_kline).table(getattr(T, instrument.bar_name(const.FREQUENCY.ONE_MINUTE))) \
-            .order_by(F.date, desc=True).limit(0, 2000).select("*")
+            .order_by(F.date, desc=True).limit(0, 20000).select("*")
         df = pd.DataFrame(data).sort_values(by="date")
         df = _fill_df(df)
         save(df)

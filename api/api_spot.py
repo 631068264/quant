@@ -11,10 +11,7 @@ from model.const import ORDER_TYPE, SIDE
 from model.environment import Environment
 from model.order import Order
 
-__all__ = [
-    "ORDER_TYPE",
-    "SIDE",
-]
+__all__ = []
 
 
 def export_as_api(func):
@@ -69,12 +66,14 @@ def _order(symbol, price=None, amount=None, order_type=None):
     return _safe_market_order(order)
 
 
+@export_as_api
 def all_in(symbol):
     env = Environment.get_instance()
     account = env.get_account(symbol)
     return market_buy(symbol, price=account.cash)
 
 
+@export_as_api
 def all_out(symbol):
     env = Environment.get_instance()
     account = env.get_account(symbol)
@@ -82,14 +81,17 @@ def all_out(symbol):
     return market_sell(symbol, amount=position.amount)
 
 
+@export_as_api
 def market_buy(symbol, price):
     return _order(symbol, price=price, order_type=ORDER_TYPE.MARKET)
 
 
+@export_as_api
 def market_sell(symbol, amount):
     return _order(symbol, amount=amount, order_type=ORDER_TYPE.MARKET)
 
 
+@export_as_api
 def limit_order(symbol, price, amount):
     """
     amount <0 for buy

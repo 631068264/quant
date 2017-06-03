@@ -48,8 +48,8 @@ def _wrap_trade(trade):
         'side': trade.side.name,
         'trade_id': trade.trade_id,
         'fee': trade.fee,
-        'amount': safe_float(trade.last_quantity, 8),
-        'price': safe_float(trade.last_price),
+        'amount': safe_float(trade.amount, 8),
+        'price': safe_float(trade.price),
         'order_id': trade.order_id,
         'transaction_cost': safe_float(trade.trade_cost),
     }

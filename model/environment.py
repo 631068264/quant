@@ -62,6 +62,10 @@ class Environment(object):
         return self.portfolio.accounts[account_type]
 
     def history(self, symbol, frequency, bar_count, dt, fields):
+        if frequency is None:
+            frequency = self.config.base.frequency
+        if frequency not in FREQUENCY.ALL:
+            return None
         return self.data_proxy.history(symbol, frequency, bar_count, dt, fields)
 
     # def get_trade_date(self, symbol, frequency, start_date, end_date):

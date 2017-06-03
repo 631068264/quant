@@ -37,8 +37,8 @@ class Order(object):
         instrument = Environment.get_instance().get_instrument(symbol)
         order = cls()
         order.order_id = next(id_gen(int(time.time())))
-        order.create_dt = env.create_dt
-        order.trade_dt = env.trade_dt
+        order.create_dt = env.calendar_dt
+        order.trade_dt = env.trading_dt
         order.amount = float(amount)
         if order.amount < instrument.min_amount:
             return None

@@ -9,19 +9,30 @@ import numpy as np
 import talib as ta
 from talib import MA_Type
 
+__all__ = []
 
+
+def export_as_api(func):
+    __all__.append(func.__name__)
+    return func
+
+
+@export_as_api
 def MA(close, period, matype=MA_Type.SMA):
     return ta.MA(close, timeperiod=period, matype=matype)
 
 
+@export_as_api
 def EMA(close, period):
     return MA(close, period, MA_Type.EMA)
 
 
+@export_as_api
 def RSI(close, period):
     return ta.RSI(close, timeperiod=period)
 
 
+@export_as_api
 def BOLL(close, period):
     bbands = ta.BBANDS(close, timeperiod=period)
     return {
@@ -31,12 +42,14 @@ def BOLL(close, period):
     }
 
 
+@export_as_api
 def MACD(close, fast_period=12, slow_period=26, signal_period=9):
     dif, dea, macd = ta.MACD(
         close, fastperiod=fast_period, slowperiod=slow_period, signalperiod=signal_period)
     return dif, dea, macd
 
 
+@export_as_api
 def KDJ(high, low, close, N=9, M1=3, M2=3):
     llv = _lv(low, N)
     hhv = _hv(high, N)

@@ -7,7 +7,7 @@
 """
 import time
 
-from model import id_gen
+from model import id_gen, safe_float
 from model.const import SIDE
 from model.environment import Environment
 from model.exception import ApplyException
@@ -37,8 +37,8 @@ class Trade(object):
         trade.order_id = order_id
         trade.symbol = symbol
         trade.side = side
-        trade.create_dt = env.create_dt
-        trade.trade_dt = env.trade_dt
+        trade.create_dt = env.calendar_dt
+        trade.trade_dt = env.trading_dt
         trade.fee = fee
         trade.price = frozen_price
         trade.amount = frozen_amount
@@ -51,11 +51,11 @@ class Trade(object):
         """交易后 所得要扣手续费"""
         if self.side != SIDE.BUY:
             raise ApplyException("just for SIDE.BUY")
-        return float(self.amount(1 - self.fee))
+        return safe_float(self.amount * (1 - self.fee))
 
     @property
     def price_after_fee(self):
         """交易后 所得要扣手续费"""
         if self.side != SIDE.SELL:
             raise ApplyException("just for SIDE.SELL")
-        return float(self.price(1 - self.fee))
+        return safe_float(self.price * (1 - self.fee))

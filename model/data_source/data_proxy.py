@@ -26,12 +26,12 @@ class DataProxy(object):
         if bar is not None:
             return Bar(instrument, bar)
 
-    def _add_datetime(self, fields):
+    def _handle_fields(self, fields):
         if fields is None:
-            return None
+            return valid_fields
         if isinstance(fields, six.string_types):
-            return ["datetime", fields]
-        return list({"datetime"} | set(fields))
+            return fields
+        return fields
 
     def _valid_fields(self, fields):
         if fields is None:
@@ -40,18 +40,16 @@ class DataProxy(object):
             return fields in valid_fields
         return set(fields) <= valid_fields
 
-    def history(self, symbol, frequency, bar_count, dt, fields):
+    def history(self, symbol, frequency, bar_count, dt, field):
         instrument = self.instrument(symbol)
-        if not self._valid_fields(fields):
+        if not self._valid_fields(field):
             return None
-        fields = self._add_datetime(fields)
-        data = self._data_source.history_bar(instrument, frequency, bar_count, dt, fields)
+        field = self._handle_fields(field)
+        data = self._data_source.history_bar(instrument, frequency, bar_count, dt, field)
         if data is None:
             return None
-        if isinstance(fields, six.string_types):
-            return pd.Series(data[fields], index=[t.to_pydatetime() for t in data['datetime']])
-        else:
-            return {f: pd.Series(data[f], index=[t.to_pydatetime() for t in data['datetime']]) for f in fields}
+        # pd.Series(data[field], index=[t.to_pydatetime() for t in data['datetime']])
+        return data
 
     def get_fee(self, symbol):
         return self._data_source.get_fee(self.instrument(symbol))
