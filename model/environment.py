@@ -9,7 +9,7 @@ import datetime
 from collections import defaultdict
 
 from model import AttrDict
-from model.const import FREQUENCY, ACCOUNT_TYPE, RUN_TYPE
+from model.const import PERIOD, ACCOUNT_TYPE, RUN_TYPE
 from model.events import EventBus
 
 
@@ -64,7 +64,7 @@ class Environment(object):
     def history(self, symbol, frequency, bar_count, dt, fields):
         if frequency is None:
             frequency = self.config.base.frequency
-        if frequency not in FREQUENCY.ALL:
+        if frequency not in PERIOD.ALL:
             return None
         return self.data_proxy.history(symbol, frequency, bar_count, dt, fields)
 
@@ -114,7 +114,7 @@ def parse_config(config):
     base_config.start_date = parse_date(base_config.start_date)
     base_config.end_date = parse_date(base_config.end_date)
     assert base_config.start_date < base_config.end_date
-    assert base_config.frequency in FREQUENCY.ALL
+    assert base_config.frequency in PERIOD.ALL
     assert set(base_config.account) <= set(ACCOUNT_TYPE.__members__.values())
     assert base_config.run_type in RUN_TYPE.__members__.values()
 

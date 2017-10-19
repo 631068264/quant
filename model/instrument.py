@@ -6,42 +6,28 @@
 @annotation = ''
 """
 
-import six
-
 from model import repr_dict
 from model.const import ACCOUNT_TYPE
 
 
 class Instrument(object):
-    def __init__(self, exchange, pair, fee, min_amount, table_format):
-        # 交易所
-        self._exchange = exchange
-        # 交易货币对
-        self._pair = pair
-        self._fee = fee
-        # 最小交易量
-        self._min_amount = min_amount
-        self._table_format = table_format
-        assert (0 < self._fee < 1), self.symbol
+    def __init__(self, exchange, pair, fee, min_amount):
+        """
+        金融商品
+        :param exchange: 交易所
+        :param pair: 交易货币对
+        :param fee: 费率 和点差有区别
+        :param min_amount: 最小交易量
+        """
+        self.exchange = exchange.lower()
+        self.pair = pair.lower()
+        self.fee = fee * 0.01
+        self.min_amount = min_amount
+        self.symbol = "%s_%s" % (self.exchange, self.pair)
+        self.table_format = self.symbol + "_%s"
 
-    @property
-    def symbol(self):
-        return "%s_%s" % (self._exchange.lower(), self._pair.lower())
-
-    @property
-    def exchange(self):
-        return self._exchange.lower()
-
-    @property
-    def fee(self):
-        return self._fee * 0.01
-
-    @property
-    def min_amount(self):
-        return self._min_amount
-
-    def bar_name(self, frequency):
-        return self._table_format % frequency
+    def bar_name(self, period):
+        return self.table_format % period
 
     @property
     def type(self):
@@ -53,10 +39,9 @@ class Instrument(object):
     __repr__ = repr_dict
 
 
-def get_all_instrument(instrument_info=None):
+def get_all_instrument(instrument_info):
     instruments = {}
-
-    for exchange, infos in six.iteritems(instrument_info):
+    for exchange, infos in instrument_info.items():
         for info in infos:
             instrument = Instrument(exchange, **info)
             instruments[instrument.symbol] = instrument

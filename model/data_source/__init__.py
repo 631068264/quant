@@ -8,7 +8,6 @@
 import os
 from functools import lru_cache
 
-import bcolz
 import click
 import numpy as np
 import pandas as pd
@@ -21,21 +20,49 @@ from model.instrument import get_all_instrument
 INSTRUMENT_DICT = get_all_instrument(instrument_info=instrument_info)
 # TODO fix bundle path
 BUNDLE_DIR = os.path.join(os.path.dirname(__file__), "bundle")
+HDF5_COMP_LEVEL = 4
+HDF5_COMP_LIB = 'blosc'
 
 
 def update_bundle():
-    progress_bar = click.progressbar(length=len(INSTRUMENT_DICT.values()) * len(const.FREQUENCY.ALL),
+    progress_bar = click.progressbar(length=len(INSTRUMENT_DICT.values()) * len(const.PERIOD.ALL),
                                      label="Bundle updating...")
+
+    def resample(df, frequency):
+        df.set_index("date", inplace=True)
+        resample_data = df.resample(const.PDMINUTE.NAME_DICT[frequency]).agg({
+            "open": "first",
+            "high": "max",
+            "low": "min",
+            "close": "last",
+            "volume": "sum",
+        })
+        resample_data["date"] = resample_data.index
+        df["date"] = df.index
+        return resample_data
+
+    def fill_df(df):
+        df.set_index("date", inplace=True)
+        # ohlc fillna
+        close = df['close'].fillna(method='ffill')
+        df = df.apply(lambda x: x.fillna(close))
+        df = df.apply(pd.to_numeric)
+        # sum fill0
+        df['volume'].replace(to_replace=0, method="ffill", inplace=True)
+        df["date"] = df.index
+        return df
 
     def save(df):
         resample_data = df
-        for frequency in const.FREQUENCY.ALL:
-            if not frequency == const.FREQUENCY.ONE_MINUTE:
-                resample_data = _resample(df, frequency)
-            rootdir = os.path.join(BUNDLE_DIR, instrument.bar_name(frequency))
-            bcolz.ctable.fromdataframe(resample_data, rootdir=rootdir, mode="w")
-            bcolz.carray(resample_data["date"].values, rootdir=rootdir + ".datetime", mode="w")
-            progress_bar.update(1)
+        h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
+        with pd.HDFStore(h5_file_path, complevel=HDF5_COMP_LEVEL, complib=HDF5_COMP_LIB) as h5:
+            for period in const.PERIOD.ALL:
+                if not period == const.PERIOD.ONE_MINUTE:
+                    resample_data = resample(df, period)
+                bar_name = instrument.bar_name(period)
+                h5.put(bar_name, resample_data)
+                h5.put(bar_name + 'date', resample_data['date'])
+                progress_bar.update(1)
 
     db_kline = dao.kline()
     if not os.path.exists(BUNDLE_DIR):
@@ -43,67 +70,39 @@ def update_bundle():
 
     for instrument in INSTRUMENT_DICT.values():
         # TODO fix limit
-        data = QS(db_kline).table(getattr(T, instrument.bar_name(const.FREQUENCY.ONE_MINUTE))) \
+        data = QS(db_kline).table(getattr(T, instrument.bar_name(const.PERIOD.ONE_MINUTE))) \
             .order_by(F.date, desc=True).limit(0, 20000).select("*")
         df = pd.DataFrame(data).sort_values(by="date")
-        df = _fill_df(df)
+        df = fill_df(df)
         save(df)
     progress_bar.render_finish()
 
 
 @lru_cache(None)
-def get_all_bar(instrument, frequency):
+def get_all_bar(instrument, period):
     try:
-        bar_name = instrument.bar_name(frequency)
-        root_dir = os.path.join(BUNDLE_DIR, bar_name)
-        zf = bcolz.open(root_dir, "r")
-
-        fields = zf.names
+        h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
+        df = pd.read_hdf(h5_file_path, instrument.bar_name(period))
+        fields = df.columns.values.tolist()
         fields.remove("date")
         dtype = np.dtype([("datetime", pd.Timestamp)] + [(f, np.dtype('float64')) for f in fields])
-        result = np.empty(shape=(zf.size,), dtype=dtype)
+        result = np.empty(shape=(df.shape[0],), dtype=dtype)
         for field in fields:
-            result[field] = zf.cols[field]
-        result["datetime"] = np.array([pd.Timestamp(date) for date in zf.cols["date"]], dtype=pd.Timestamp)
+            result[field] = df[field].values
+        result["datetime"] = np.array([pd.Timestamp(date) for date in df["date"]], dtype=pd.Timestamp)
         return result
     except Exception as e:
         raise e
 
 
-def get_trade_date(instrument, frequency):
+def get_trade_date(instrument, period):
     try:
-        bar_name = instrument.bar_name(frequency)
-        root_dir = os.path.join(BUNDLE_DIR, bar_name) + ".datetime"
-        zf = bcolz.open(root_dir, "r")
-        result = np.array([pd.Timestamp(date) for date in zf], dtype=pd.Timestamp)
+        h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
+        series = pd.read_hdf(h5_file_path, instrument.bar_name(period) + "date")
+        result = np.array([pd.Timestamp(date) for date in series.values], dtype=pd.Timestamp)
         return result
     except Exception as e:
         raise e
-
-
-def _fill_df(df):
-    df.set_index("date", inplace=True)
-    # ohlc fillna
-    close = df['close'].fillna(method='ffill')
-    df = df.apply(lambda x: x.fillna(close))
-    # sum fill0
-    df['volume'].replace(to_replace=0, method="ffill", inplace=True)
-    df["date"] = df.index
-    return df
-
-
-def _resample(df, frequency):
-    df.set_index("date", inplace=True)
-    resample_data = df.resample(const.PDMINUTE.NAME_DICT[frequency]).agg({
-        "open": "first",
-        "high": "max",
-        "low": "min",
-        "close": "last",
-        "volume": "sum",
-    })
-    resample_data["date"] = resample_data.index
-    df["date"] = df.index
-    return resample_data
 
 
 from model.data_source.base_source import BaseDataSource

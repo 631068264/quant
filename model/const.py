@@ -53,7 +53,7 @@ Base Data Source
 """
 
 
-class FREQUENCY(object):
+class PERIOD(object):
     ONE_MINUTE = 1
     THREE_MINUTE = 3
     FIVE_MINUTE = 5
@@ -63,27 +63,27 @@ class FREQUENCY(object):
     TWO_HOUR = 120
     FOUR_HOUR = 240
     SIX_HOUR = 360
-    TWELEVE_HOUR = 720
+    TWELVE_HOUR = 720
     DAY = 1440
 
     ALL = [
         ONE_MINUTE, THREE_MINUTE, FIVE_MINUTE, QUARTER_HOUR,
         HALF_HOUR, HOUR, TWO_HOUR, FOUR_HOUR, SIX_HOUR,
-        TWELEVE_HOUR, DAY,
+        TWELVE_HOUR, DAY,
     ]
 
 
 class PDMINUTE(object):
     NAME_DICT = {
-        FREQUENCY.ONE_MINUTE: "1min",
-        FREQUENCY.THREE_MINUTE: "3min",
-        FREQUENCY.FIVE_MINUTE: "5min",
-        FREQUENCY.QUARTER_HOUR: "15min",
-        FREQUENCY.HALF_HOUR: "30min",
-        FREQUENCY.HOUR: "1H",
-        FREQUENCY.TWO_HOUR: "2H",
-        FREQUENCY.FOUR_HOUR: "4H",
-        FREQUENCY.SIX_HOUR: "6H",
-        FREQUENCY.TWELEVE_HOUR: "12H",
-        FREQUENCY.DAY: "1D",
+        PERIOD.ONE_MINUTE: "1min",
+        PERIOD.THREE_MINUTE: "3min",
+        PERIOD.FIVE_MINUTE: "5min",
+        PERIOD.QUARTER_HOUR: "15min",
+        PERIOD.HALF_HOUR: "30min",
+        PERIOD.HOUR: "1H",
+        PERIOD.TWO_HOUR: "2H",
+        PERIOD.FOUR_HOUR: "4H",
+        PERIOD.SIX_HOUR: "6H",
+        PERIOD.TWELVE_HOUR: "12H",
+        PERIOD.DAY: "1D",
     }

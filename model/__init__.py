@@ -7,9 +7,6 @@
 """
 import collections
 
-import numpy as np
-import six
-
 
 def id_gen(start=1):
     """获取id"""
@@ -80,19 +77,18 @@ class AttrDict(object):
 
 
 instrument_info = {
+    # TODO:这东西位置改一下
     # 修改_get_all_instrument/update_bundle
     "okcn": [
         {
             "pair": "btc_cny",
             "fee": 0.2,
             "min_amount": 0.01,
-            "table_format": "okcn_btc_cny_%s",
         },
         {
             "pair": "ltc_cny",
             "fee": 0.2,
             "min_amount": 0.1,
-            "table_format": "okcn_ltc_cny_%s",
         },
     ],
 }

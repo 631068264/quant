@@ -6,11 +6,11 @@
 @annotation = ''
 """
 
-from model import Environment, FREQUENCY
+from model import Environment, PERIOD
 
 __all__ = [
     "Environment",
-    "FREQUENCY",
+    "PERIOD",
 ]
 
 
