@@ -39,14 +39,37 @@ class Environment(object):
         self.event_bus = EventBus()
         self.portfolio = None
         self.benchmark_portfolio = None
+        # TODO:dt之间区别
         self.calendar_dt = self.config.base.start_date
         self.trading_dt = self.config.base.start_date
         self.plot_store = None
         self.bar_dict = None
 
+        # model dict
+        self._account_dict = {}
+        self._position_dict = {}
+
     @classmethod
     def get_instance(cls):
         return Environment._env
+
+    def set_account(self, account_type, account_model):
+        self._account_dict[account_type] = account_model
+
+    def get_account(self, account_type):
+        try:
+            return self._account_dict[account_type]
+        except Exception as e:
+            raise KeyError('Unknown Account Type %s' % (account_type,))
+
+    def set_position(self, position_type, position_model):
+        self._position_dict[position_type] = position_model
+
+    def get_position(self, position_type):
+        try:
+            return self._position_dict[position_type]
+        except Exception as e:
+            raise KeyError('Unknown Position Type %s' % (position_type,))
 
     def get_bar(self, symbol):
         return self.bar_dict[symbol]
@@ -57,9 +80,9 @@ class Environment(object):
     def get_instrument(self, symbol):
         return self.data_proxy.instrument(symbol)
 
-    def get_account(self, symbol):
-        account_type = self.get_instrument(symbol).type
-        return self.portfolio.accounts[account_type]
+    # def get_account(self, symbol):
+    #     account_type = self.get_instrument(symbol).type
+    #     return self.portfolio.accounts[account_type]
 
     def history(self, symbol, frequency, bar_count, dt, fields):
         if frequency is None:
@@ -71,17 +94,17 @@ class Environment(object):
     # def get_trade_date(self, symbol, frequency, start_date, end_date):
     #     return self.data_proxy.get_trade_date(symbol, frequency, start_date, end_date)
 
-    def get_previous_date(self, symbol, frequency, dt, n=1):
-        return self.data_proxy.get_previous_date(symbol, frequency, dt, n=n)
-
-    def get_next_date(self, symbol, frequency, dt):
-        return self.data_proxy.get_next_date(symbol, frequency, dt)
-
-    def get_calendar(self, frequency, start_date, end_date):
-        return self.data_proxy.get_calendar("okcn_btc_cny", frequency, start_date, end_date)
-
-    def get_calendar_range(self, frequency):
-        return self.data_proxy.get_calendar_range("okcn_btc_cny", frequency)
+    # def get_previous_date(self, symbol, frequency, dt, n=1):
+    #     return self.data_proxy.get_previous_date(symbol, frequency, dt, n=n)
+    #
+    # def get_next_date(self, symbol, frequency, dt):
+    #     return self.data_proxy.get_next_date(symbol, frequency, dt)
+    #
+    # def get_calendar(self, frequency, start_date, end_date):
+    #     return self.data_proxy.get_calendar("okcn_btc_cny", frequency, start_date, end_date)
+    #
+    # def get_calendar_range(self, frequency):
+    #     return self.data_proxy.get_calendar_range("okcn_btc_cny", frequency)
 
     def get_plot_store(self):
         if self.plot_store is None:

@@ -9,13 +9,13 @@ from __future__ import division
 
 import six
 
-from model.account import SpotAccount
 from model.const import ACCOUNT_TYPE
 from model.environment import Environment
 from model.events import EVENT
 from model.exception import CashTooLessException
-from model.position import Positions
-from model.position import SpotPosition
+from model.mod.mod_sys_account.account import SpotAccount
+from model.mod.mod_sys_account.position import Positions
+from model.mod.mod_sys_account.position import SpotPosition
 
 DAYS_A_YEAR = 365
 
@@ -40,7 +40,7 @@ class Portfolio(object):
         """
         [StockAccount] 现货账户
         """
-        return self.accounts.get(ACCOUNT_TYPE.SPOT, None)
+        return self.accounts.get(ACCOUNT_TYPE.STOCK, None)
 
     @property
     def total_value(self):
@@ -117,12 +117,12 @@ def init_portfolio(env):
     total_cash = 0
     try:
         for account_type in base_config.account:
-            if account_type == ACCOUNT_TYPE.SPOT:
+            if account_type == ACCOUNT_TYPE.STOCK:
                 spot_starting_cash = base_config.spot_starting_cash
                 if spot_starting_cash <= 0:
                     raise CashTooLessException("[spot_starting_cash]%s <= 0" % spot_starting_cash)
                 total_cash += spot_starting_cash
-                accounts[ACCOUNT_TYPE.SPOT] = SpotAccount(spot_starting_cash, Positions(SpotPosition))
+                accounts[ACCOUNT_TYPE.STOCK] = SpotAccount(spot_starting_cash, Positions(SpotPosition))
 
             elif account_type == ACCOUNT_TYPE.FUTURE:
                 raise NotImplementedError

@@ -5,13 +5,13 @@
 @time = 2017/5/16 09:19
 @annotation = ''
 """
+from model.base_position import BasePosition
 from model.const import ACCOUNT_TYPE, SIDE
-from model.position.base_position import BasePosition
 
 
-class SpotPosition(BasePosition):
+class StockPosition(BasePosition):
     def __init__(self, symbol):
-        super(SpotPosition, self).__init__(symbol)
+        super(StockPosition, self).__init__(symbol)
         self.amount = 0  # 持币数量
         self.frozen_amount = 0  # 冻结量
         self.buy_price = 0  # 买入价
@@ -44,4 +44,4 @@ class SpotPosition(BasePosition):
 
     @property
     def type(self):
-        return ACCOUNT_TYPE.SPOT
+        return ACCOUNT_TYPE.STOCK.name

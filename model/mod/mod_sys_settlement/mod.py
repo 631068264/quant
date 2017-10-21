@@ -57,7 +57,7 @@ def _wrap_trade(trade):
 
 def _wrap_position(dt, symbol, position):
     POSITION_FIELDS_MAP = {
-        ACCOUNT_TYPE.SPOT: [
+        ACCOUNT_TYPE.STOCK: [
             'amount', 'last_price', 'buy_price', 'market_value'
         ],
         # ACCOUNT_TYPE.FUTURE: [

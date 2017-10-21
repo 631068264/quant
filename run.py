@@ -10,12 +10,12 @@ import six
 
 from base import util
 from model import data_source
-from model.account import create_benchmark_portfolio
 from model.context import Context
 from model.environment import Environment
 from model.events import EVENT, Event
 from model.executor import Executor
 from model.mod import ModHandler
+from model.mod.mod_sys_account.account import create_benchmark_portfolio
 from model.strategy import Strategy
 
 

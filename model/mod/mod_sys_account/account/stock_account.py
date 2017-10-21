@@ -5,36 +5,36 @@
 @time = 2017/5/15 21:12
 @annotation = ''
 """
-
-from model.account.base_account import BaseAccount
+from model.base_account import BaseAccount
 from model.const import ACCOUNT_TYPE, SIDE
 from model.environment import Environment
 from model.events import EVENT
 
 
-class SpotAccount(BaseAccount):
+class StockAccount(BaseAccount):
     def __init__(self, cash, positions, register_event=True):
-        super(SpotAccount, self).__init__(cash, positions, register_event)
+        super(StockAccount, self).__init__(cash, positions, register_event)
         self.trade_cost = 0
 
     @property
     def type(self):
-        return ACCOUNT_TYPE.SPOT
+        return ACCOUNT_TYPE.STOCK.name
 
     @property
     def total_value(self):
         return self.total_market_value + self.total_cash
 
     def register_event(self):
+        # TODO:费用计算重新改
         event_bus = Environment.get_instance().event_bus
         # 仓位控制
-        event_bus.prepend_listener(EVENT.ORDER_PENDING_NEW, self._on_order_pending_new)
-        event_bus.prepend_listener(EVENT.ORDER_CANCELLATION_PASS, self._on_order_cancel)
-        event_bus.prepend_listener(EVENT.ORDER_UNSOLICITED_UPDATE, self._on_order_cancel)
-        event_bus.prepend_listener(EVENT.ORDER_CREATION_REJECT, self._on_order_cancel)
-        event_bus.prepend_listener(EVENT.TRADE, self._on_trade)
+        event_bus.add_listener(EVENT.TRADE, self._on_trade)
+        event_bus.add_listener(EVENT.ORDER_PENDING_NEW, self._on_order_pending_new)
+        event_bus.add_listener(EVENT.ORDER_CANCELLATION_PASS, self._on_order_cancel)
+        event_bus.add_listener(EVENT.ORDER_UNSOLICITED_UPDATE, self._on_order_cancel)
+        event_bus.add_listener(EVENT.ORDER_CREATION_REJECT, self._on_order_cancel)
         # 结算
-        event_bus.prepend_listener(EVENT.SETTLEMENT, self._on_settlement)
+        event_bus.add_listener(EVENT.SETTLEMENT, self._on_settlement)
 
     def _on_order_pending_new(self, event):
         if event.account != self:
@@ -71,6 +71,7 @@ class SpotAccount(BaseAccount):
             self.total_cash += trade.price_after_fee
 
     def _on_settlement(self, event):
+        # TODO:斟酌
         for position in list(self.positions.values()):
             if position.amount != 0:
                 self.total_cash += position.market_value

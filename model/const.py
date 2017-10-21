@@ -10,7 +10,7 @@ from enum import Enum
 
 class ACCOUNT_TYPE(Enum):
     # TODO:FUTURE
-    SPOT = "SPOT"
+    STOCK = "STOCK"
     FUTURE = "FUTURE"
     BENCHMARK = "BENCHMARK"
 

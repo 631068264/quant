@@ -5,12 +5,12 @@
 @time = 2017/5/24 17:02
 @annotation = ''
 """
-from model.account import SpotAccount
 from model.environment import Environment
 from model.events import EVENT
+from .stock_account import StockAccount
 
 
-class BenchmarkAccount(SpotAccount):
+class BenchmarkAccount(StockAccount):
     def __init__(self, cash, positions):
         super(BenchmarkAccount, self).__init__(cash, positions, True)
         self.benchmark = Environment.get_instance().config.base.benchmark

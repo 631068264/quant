@@ -8,17 +8,22 @@
 from model.environment import Environment
 
 
+class Positions(dict):
+    def __init__(self, position_cls):
+        super(Positions, self).__init__()
+        self._position_cls = position_cls
+
+    def __missing__(self, key):
+        if key not in self:
+            self[key] = self._position_cls(key)
+        return self[key]
+
+
 class BasePosition(object):
     """仓位"""
 
     def __init__(self, symbol):
         self.symbol = symbol
-
-    def get_state(self):
-        raise NotImplementedError
-
-    def set_state(self, state):
-        raise NotImplementedError
 
     @property
     def market_value(self):

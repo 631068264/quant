@@ -71,7 +71,7 @@ class Context(object):
 
     @property
     def stock_account(self):
-        return self.portfolio.accounts[ACCOUNT_TYPE.SPOT]
+        return self.portfolio.accounts[ACCOUNT_TYPE.STOCK]
 
     @property
     def config(self):

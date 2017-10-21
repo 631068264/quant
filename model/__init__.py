@@ -33,7 +33,7 @@ class AttrDict(object):
     def __init__(self, dic=None):
         self.__dict__ = dic if dic is not None else dict()
 
-        for k, v in list(six.iteritems(self.__dict__)):
+        for k, v in six.iteritems(self.__dict__):
             if isinstance(v, dict):
                 self.__dict__[k] = AttrDict(v)
 
@@ -93,7 +93,6 @@ instrument_info = {
     ],
 }
 
-from model.account import *
 from model.bar import *
 from model.broker import *
 from model.const import *
@@ -109,4 +108,4 @@ from model.interface import *
 from model.mod import *
 from model.order import *
 from model.portfolio import *
-from model.position import *
+

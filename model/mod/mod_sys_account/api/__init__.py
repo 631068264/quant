@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 @author = 'wyx'
-@time = 2017/5/22 09:30
+@time = 2017/10/21 11:52
 @annotation = ''
 """
-from api.api_base import *
-from api.indicators import *

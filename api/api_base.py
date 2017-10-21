@@ -6,16 +6,21 @@
 @annotation = ''
 """
 
-from model import Environment, PERIOD
+from model import Environment
 
 __all__ = [
     "Environment",
-    "PERIOD",
 ]
+
+
+def register_api(name, func):
+    globals()[name] = func
+    __all__.append(name)
 
 
 def export_as_api(func):
     __all__.append(func.__name__)
+    globals()[func.__name__] = func
     return func
 
 

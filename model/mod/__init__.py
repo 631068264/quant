@@ -24,8 +24,6 @@ class ModHandler(object):
         self._mod_list = []
         self._mod_dict = {}
 
-        self._set_up()
-
     def _set_up(self):
         for mod_name in SYSTEM_MOD_LIST:
             lib_name = "model.mod.mod_" + mod_name
@@ -37,6 +35,7 @@ class ModHandler(object):
         self._mod_list = sorted(self._mod_list, key=lambda item: getattr(item[1], "priority", 100))
 
     def start(self):
+        self._set_up()
         for mod_name, mod_config in self._mod_list:
             self._mod_dict[mod_name].start(self._env, mod_config)
 

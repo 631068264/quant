@@ -33,8 +33,8 @@ class Instrument(object):
     def type(self):
         """判断symbol 期货 现货"""
         if "future" in self.symbol:
-            return ACCOUNT_TYPE.FUTURE
-        return ACCOUNT_TYPE.SPOT
+            return ACCOUNT_TYPE.FUTURE.name
+        return ACCOUNT_TYPE.STOCK.name
 
     __repr__ = repr_dict
 
