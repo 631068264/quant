@@ -9,14 +9,14 @@ import click
 import six
 
 from base import util
-from model import data_source
-from model.context import Context
-from model.environment import Environment
-from model.events import EVENT, Event
-from model.executor import Executor
-from model.mod import ModHandler
-from model.mod.mod_sys_account.account import create_benchmark_portfolio
-from model.strategy import Strategy
+from quant import data_source
+from quant.context import Context
+from quant.environment import Environment
+from quant.events import EVENT, Event
+from quant.executor import Executor
+from quant.mod import ModHandler
+from quant.mod.mod_sys_account.account import create_benchmark_portfolio
+from quant.strategy import Strategy
 
 
 @click.group()

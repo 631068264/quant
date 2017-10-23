@@ -6,7 +6,7 @@
 @annotation = ''
 """
 
-from model import Environment
+from quant import Environment
 
 __all__ = [
     "Environment",
