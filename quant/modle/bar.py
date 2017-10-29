@@ -5,31 +5,22 @@
 @time = 2017/5/16 11:24
 @annotation = ''
 """
-import datetime
 
 import numpy as np
-import pandas as pd
+
+from quant.util import repr_print
+from quant.util.datetime_func import convert_to_datetime
 
 OHLCV = ['open', 'high', 'low', 'close', 'volume']
 NANDict = {i: np.nan for i in OHLCV}
 
 
-def convert_to_datetime(dt, format='%Y-%m-%d %H:%M:%S'):
-    # TODO:datetime or str
-    if isinstance(dt, datetime.datetime):
-        return dt
-    if isinstance(dt, pd.Timestamp):
-        return dt.to_pydatetime()
-    if isinstance(dt, str):
-        return datetime.datetime.strptime(dt, format)
-    if not isinstance(dt, int):
-        dt = int(dt)
-        return datetime.datetime.fromtimestamp(dt)
-
-
 class Bar(object):
-    """K线 candle"""
+    """
+    K线 candle
+    """
 
+    # TODO: 是否可交易 if volume > 0
     def __init__(self, instrument, data=None, dt=None):
         self._instrument = instrument
         # TODO:获取 depth
@@ -98,6 +89,8 @@ class BarDict(object):
 
     def __getitem__(self, key):
         instrument = self._data_proxy.instrument(key)
+        if instrument is None:
+            raise KeyError('invalid symbol : {}'.format(key))
         symbol = instrument.symbol
         try:
             return self._cache[symbol]
@@ -112,3 +105,5 @@ class BarDict(object):
     @property
     def dt(self):
         return self._dt
+
+    __repr__ = repr_print.repr_dict

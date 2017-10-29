@@ -6,8 +6,8 @@
 @annotation = ''
 """
 
-from quant import repr_dict
 from quant.const import ACCOUNT_TYPE
+from quant.util import repr_print
 
 
 class Instrument(object):
@@ -26,17 +26,17 @@ class Instrument(object):
         self.symbol = "%s_%s" % (self.exchange, self.pair)
         self.table_format = self.symbol + "_%s"
 
-    def bar_name(self, period):
-        return self.table_format % period
+    def bar_name(self, frequency):
+        return self.table_format % frequency
 
     @property
     def type(self):
         """判断symbol 期货 现货"""
         if "future" in self.symbol:
             return ACCOUNT_TYPE.FUTURE.name
-        return ACCOUNT_TYPE.STOCK.name
+        return ACCOUNT_TYPE.CRYPTO.name
 
-    __repr__ = repr_dict
+    __repr__ = repr_print.repr_dict
 
 
 def get_all_instrument(instrument_info):

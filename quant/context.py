@@ -19,7 +19,7 @@ class RunInfo(object):
         self.start_date = base_config.start_date
         self.end_date = base_config.end_date
         self.frequency = base_config.frequency
-        self.spot_starting_cash = base_config.spot_starting_cash
+        self.crypto_starting_cash = base_config.account.get(ACCOUNT_TYPE.CRYPTO.name, 0)
         self.benchmark = base_config.benchmark
         self.run_type = base_config.run_type
 
@@ -33,7 +33,7 @@ class Context(object):
         """
         使用以上的方式就可以在handle_bar中拿到当前的bar的时间，比如day bar的话就是那天的时间，minute bar的话就是这一分钟的时间点。
         """
-        return Environment.get_instance().now
+        return Environment.get_instance().calendar_dt
 
     @property
     def run_info(self):
@@ -60,7 +60,7 @@ class Context(object):
         total_returns               float                       投资组合总收益率
         annualized_returns          float                       投资组合的年化收益率
         total_value                 float                       投资组合总权益
-        positions                   dict                        一个包含所有仓位的字典，以order_book_id作为键，position对象作为值
+        positions                   dict                        一个包含所有仓位的字典，以symbol作为键，position对象作为值
         cash                        float                       总的可用资金
         market_value                float                       投资组合当前的市场价值，为子组合市场价值的加总
         =========================   =========================   ==============================================================================
@@ -70,8 +70,8 @@ class Context(object):
         return Environment.get_instance().portfolio
 
     @property
-    def stock_account(self):
-        return self.portfolio.accounts[ACCOUNT_TYPE.STOCK]
+    def crypto_account(self):
+        return self.portfolio.accounts[ACCOUNT_TYPE.CRYPTO.name]
 
     @property
     def config(self):

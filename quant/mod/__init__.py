@@ -48,12 +48,11 @@ class ModHandler(object):
         return result
 
 
+# TODO: progress realtime settlement analyser
 SYSTEM_MOD_LIST = [
     "sys_account",
     "sys_analyser",
     "sys_risk",
     "sys_progress",
-    "sys_settlement",
-    # "sys_bot",
-    # "sys_signal",
+    "sys_backtest",
 ]

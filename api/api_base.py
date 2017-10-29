@@ -25,11 +25,9 @@ def export_as_api(func):
 
 
 @export_as_api
-def get_open_orders(symbol):
+def get_open_orders(symbol=None):
     """
     获取当日未成交订单数据
-
-    :return: List[:class:`~Order` object]
     """
     return Environment.get_instance().broker.get_open_orders(symbol)
 
@@ -38,15 +36,13 @@ def get_open_orders(symbol):
 def cancel_order(order):
     """
     撤单
-
-    :param order: 需要撤销的order对象
-    :type order: :class:`~Order` object
     """
-    if order is not None:
-        env = Environment.get_instance()
-        if env.can_cancel_order(order):
-            env.broker.cancel_order(order)
-        return order
+    if order is None:
+        raise KeyError("cancel order fail {order}".format(order=order))
+    env = Environment.get_instance()
+    if env.can_cancel_order(order):
+        env.broker.cancel_order(order)
+    return order
 
 
 @export_as_api
@@ -81,7 +77,6 @@ def instruments(symbols):
 def get_trade_date(symbol, frequency, start_date, end_date):
     """
     交易时间
-    :return: list[`datetime.datetime`]
     """
     return Environment.get_instance().get_calendar(symbol, frequency, start_date, end_date)
 
@@ -92,11 +87,10 @@ def get_previous_date(symbol, frequency, dt, n=1):
 
 
 @export_as_api
-def get_next_date(symbol, frequency, dt):
-    return Environment.get_instance().get_next_date(symbol, frequency, dt)
+def get_next_date(symbol, frequency, dt, n=1):
+    return Environment.get_instance().get_next_date(symbol, frequency, dt, n=n)
 
 
 @export_as_api
 def plot(series_name, value):
-    # Environment.get_instance().add_plot(series_name, value)
-    pass
+    Environment.get_instance().add_plot(series_name, value)

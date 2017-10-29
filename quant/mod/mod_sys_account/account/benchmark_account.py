@@ -7,10 +7,10 @@
 """
 from quant.environment import Environment
 from quant.events import EVENT
-from .stock_account import StockAccount
+from .crypto_account import CryptoAccount
 
 
-class BenchmarkAccount(StockAccount):
+class BenchmarkAccount(CryptoAccount):
     def __init__(self, cash, positions):
         super(BenchmarkAccount, self).__init__(cash, positions, True)
         self.benchmark = Environment.get_instance().config.base.benchmark

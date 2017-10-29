@@ -8,9 +8,9 @@
 from api import export_as_api
 from quant import AbstractMod
 from quant.const import ACCOUNT_TYPE
-from .account import StockAccount, BenchmarkAccount
-from .api import api_stock
-from .position import StockPosition
+from .account import CryptoAccount, BenchmarkAccount
+from .api import api_crypto
+from .position import CryptoPosition
 
 
 class AccountMod(AbstractMod):
@@ -18,12 +18,13 @@ class AccountMod(AbstractMod):
         pass
 
     def start(self, env, mod_config):
-        env.set_account(ACCOUNT_TYPE.STOCK.name, StockAccount)
+        env.set_account(ACCOUNT_TYPE.CRYPTO.name, CryptoAccount)
         env.set_account(ACCOUNT_TYPE.BENCHMARK.name, BenchmarkAccount)
 
-        env.set_positon(ACCOUNT_TYPE.STOCK.name, StockPosition)
+        env.set_positon(ACCOUNT_TYPE.CRYPTO.name, CryptoPosition)
+        env.set_positon(ACCOUNT_TYPE.BENCHMARK.name, CryptoPosition)
 
-        if ACCOUNT_TYPE.STOCK.name in env.config.base.accounts:
+        if ACCOUNT_TYPE.CRYPTO.name in env.config.base.accounts:
             # 注入股票API
-            for export_name in api_stock.__all__:
-                export_as_api(getattr(api_stock, export_name))
+            for export_name in api_crypto.__all__:
+                export_as_api(getattr(api_crypto, export_name))

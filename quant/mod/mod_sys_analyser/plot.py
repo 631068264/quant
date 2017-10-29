@@ -99,14 +99,13 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
 
     fig_data = [
         (0.00, label_height, value_height, "收益率", "{0:.3%}".format(summary["total_returns"]), red, black),
-        (0.15, label_height, value_height, "年化收益率", "{0:.3%}".format(summary["annualized_returns"]), red,
-         black),
+        (0.15, label_height, value_height, "年化收益率",
+         "{0:.3%}".format(summary["annualized_returns"]), red, black),
+
         (0.00, label_height2, value_height2, "基准收益率",
-         "{0:.3%}".format(summary.get("benchmark_total_returns", 0)), blue,
-         black),
+         "{0:.3%}".format(summary.get("benchmark_total_returns", 0)), blue, black),
         (0.15, label_height2, value_height2, "基准年化收益率",
-         "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)),
-         blue, black),
+         "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)), blue, black),
 
         # (0.30, label_height, value_height, "Alpha", "{0:.4}".format(summary["alpha"]), black, black),
         # (0.40, label_height, value_height, "Beta", "{0:.4}".format(summary["beta"]), black, black),

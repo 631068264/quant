@@ -12,15 +12,15 @@ import six
 from quant.const import ACCOUNT_TYPE
 from quant.environment import Environment
 from quant.events import EVENT
-from quant.exception import CashTooLessException
-from quant.mod.mod_sys_account.account import SpotAccount
-from quant.mod.mod_sys_account.position import Positions
-from quant.mod.mod_sys_account.position import SpotPosition
+from quant.util import repr_print
 
 DAYS_A_YEAR = 365
 
 
 class Portfolio(object):
+    """投资组合"""
+    __repr__ = repr_print.repr_dict
+
     def __init__(self, start_date, start_cash, accounts):
         # 策略投资组合的开始日期
         self.start_date = start_date
@@ -36,11 +36,11 @@ class Portfolio(object):
         event_bus.prepend_listener(EVENT.PRE_BEFORE_TRADING, self._pre_before_trading)
 
     @property
-    def spot_account(self):
+    def crypto_account(self):
         """
-        [StockAccount] 现货账户
+        数字货币账户
         """
-        return self.accounts.get(ACCOUNT_TYPE.STOCK, None)
+        return self.accounts.get(ACCOUNT_TYPE.CRYPTO.name, None)
 
     @property
     def total_value(self):
@@ -100,35 +100,12 @@ class Portfolio(object):
     @property
     def annualized_returns(self):
         """
-        [float] 年化收益率
+        年化收益率
         """
         current_date = Environment.get_instance().trading_dt.date()
         return (1 + self.pnl_returns) ** (DAYS_A_YEAR / float((current_date - self.start_date.date()).days + 1)) - 1
 
     @property
     def unit_net_value(self):
+        """实时净值"""
         return self.total_value / self.start_cash
-
-
-def init_portfolio(env):
-    accounts = {}
-    base_config = env.config.base
-    start_date = base_config.start_date
-    total_cash = 0
-    try:
-        for account_type in base_config.account:
-            if account_type == ACCOUNT_TYPE.STOCK:
-                spot_starting_cash = base_config.spot_starting_cash
-                if spot_starting_cash <= 0:
-                    raise CashTooLessException("[spot_starting_cash]%s <= 0" % spot_starting_cash)
-                total_cash += spot_starting_cash
-                accounts[ACCOUNT_TYPE.STOCK] = SpotAccount(spot_starting_cash, Positions(SpotPosition))
-
-            elif account_type == ACCOUNT_TYPE.FUTURE:
-                raise NotImplementedError
-            else:
-                raise NotImplementedError
-        return Portfolio(start_date, total_cash, accounts)
-
-    except Exception as e:
-        raise e

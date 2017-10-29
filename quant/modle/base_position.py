@@ -6,6 +6,7 @@
 @annotation = ''
 """
 from quant.environment import Environment
+from quant.util import repr_print
 
 
 class Positions(dict):
@@ -43,3 +44,5 @@ class BasePosition(object):
 
     def apply_trade(self, trade):
         raise NotImplementedError
+
+    __repr__ = repr_print.repr_dict

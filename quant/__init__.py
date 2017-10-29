@@ -16,12 +16,6 @@ def id_gen(start=1):
         i += 1
 
 
-def repr_dict(self):
-    return "%s(%s)" % (
-        self.__class__.__name__,
-        {k.replace("_", "", 1) if k.startswith("_") else k: v for k, v in six.iteritems(self.__dict__)})
-
-
 def safe_float(value, ndigits=3):
     if isinstance(value, (float, np.float64, np.float32, np.float16, np.float)):
         return round(value, ndigits)
@@ -94,14 +88,12 @@ instrument_info = {
 }
 
 from quant.modle.bar import *
-from quant.broker import *
 from quant.const import *
 from quant.context import *
 from quant.data_source import *
 from quant.environment import *
-from quant.event_source import *
 from quant.events import *
-from quant.exception import *
+from quant.util.exception import *
 from quant.executor import *
 from quant.modle.instrument import *
 from quant.interface import *

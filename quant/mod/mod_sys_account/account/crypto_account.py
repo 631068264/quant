@@ -11,21 +11,20 @@ from quant.events import EVENT
 from quant.modle.base_account import BaseAccount
 
 
-class StockAccount(BaseAccount):
+class CryptoAccount(BaseAccount):
     def __init__(self, cash, positions, register_event=True):
-        super(StockAccount, self).__init__(cash, positions, register_event)
+        super(CryptoAccount, self).__init__(cash, positions, register_event)
         self.trade_cost = 0
 
     @property
     def type(self):
-        return ACCOUNT_TYPE.STOCK.name
+        return ACCOUNT_TYPE.CRYPTO.name
 
     @property
     def total_value(self):
         return self.total_market_value + self.total_cash
 
     def register_event(self):
-        # TODO:费用计算重新改
         event_bus = Environment.get_instance().event_bus
         # 仓位控制
         event_bus.add_listener(EVENT.TRADE, self._on_trade)
@@ -45,7 +44,7 @@ class StockAccount(BaseAccount):
         if position is not None:
             position.on_order_pending_new(order)
         if order.side == SIDE.BUY:
-            self.frozen_cash += order.trade_cost
+            self.frozen_cash += order.price * order.amount
 
     def _on_order_cancel(self, event):
         if event.account != self:
@@ -54,24 +53,23 @@ class StockAccount(BaseAccount):
         position = self.positions[order.symbol]
         position.on_order_cancel(order)
         if order.side == SIDE.BUY:
-            self.frozen_cash -= order.trade_cost
+            self.frozen_cash -= order.price * order.amount
 
     def _on_trade(self, event):
         if event.account != self:
             return
         trade = event.trade
-        self.trade_cost += self.trade_cost
         position = self.positions[trade.symbol]
         position.apply_trade(trade)
 
+        self.trade_cost += abs(trade.price - trade.frozen_price) + trade.amount * trade.price * trade.fee
         if trade.side == SIDE.BUY:
-            self.total_cash -= trade.trade_cost
-            self.frozen_cash -= trade.trade_cost
+            self.total_cash -= trade.price * trade.amount
+            self.frozen_cash -= trade.frozen_price * trade.amount
         else:
-            self.total_cash += trade.price_after_fee
+            self.total_cash += trade.price * trade.amount * (1 - trade.fee)
 
     def _on_settlement(self, event):
-        # TODO:斟酌
         for position in list(self.positions.values()):
             if position.amount != 0:
                 self.total_cash += position.market_value

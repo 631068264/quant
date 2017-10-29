@@ -7,7 +7,10 @@
 """
 import six
 
+from quant.util import repr_print
 
+
+# TODO:不同account——type benchmark 的symbol不一样
 class BaseAccount(object):
     def __init__(self, total_cash, positions, register_event=True):
         self.positions = positions
@@ -62,3 +65,5 @@ class BaseAccount(object):
     @property
     def frozen_amount(self):
         return {position.symbol: position.frozen_amount for position in six.itervalues(self.positions)}
+
+    __repr__ = repr_print.repr_dict

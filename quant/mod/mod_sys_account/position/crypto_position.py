@@ -9,16 +9,16 @@ from quant.const import ACCOUNT_TYPE, SIDE
 from quant.modle.base_position import BasePosition
 
 
-class StockPosition(BasePosition):
+class CryptoPosition(BasePosition):
     def __init__(self, symbol):
-        super(StockPosition, self).__init__(symbol)
+        super(CryptoPosition, self).__init__(symbol)
         self.amount = 0  # 持币数量
         self.frozen_amount = 0  # 冻结量
         self.buy_price = 0  # 买入价
 
     def apply_trade(self, trade):
         if trade.side == SIDE.BUY:
-            self.amount += trade.amount_after_fee
+            self.amount += trade.amount * (1 - trade.fee)
             self.buy_price = trade.price
         else:
             self.amount -= trade.amount
@@ -30,7 +30,11 @@ class StockPosition(BasePosition):
 
     def on_order_cancel(self, order):
         if order.side == SIDE.SELL:
-            self.frozen_amount -= order.amount
+            self.frozen_amount -= order.unfilled_amount
+
+    @property
+    def sellable(self):
+        return self.amount - self.frozen_amount
 
     @property
     def earning(self):
@@ -40,8 +44,9 @@ class StockPosition(BasePosition):
     @property
     def market_value(self):
         """市价"""
-        return self.amount * self.last_price
+        # 全部卖出手续费
+        return self.amount * self.last_price * (1 - self.symbol.fee)
 
     @property
     def type(self):
-        return ACCOUNT_TYPE.STOCK.name
+        return ACCOUNT_TYPE.CRYPTO.name

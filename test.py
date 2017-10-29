@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 @author = 'wyx'
-@time = 2017/5/20 20:49
+@time = 2017/10/25 10:02
 @annotation = ''
 """
-from quant.broker.back_test_broker import BackTestBroker

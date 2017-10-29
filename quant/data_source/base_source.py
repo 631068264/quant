@@ -23,8 +23,8 @@ class BaseDataSource(AbstractDataSource):
 
     def get_calendar_range(self, instrument, frequency):
         try:
-            bars = get_all_bar(instrument, frequency)
-            return bars["datetime"][0], bars["datetime"][-1]
+            date_bar = get_trade_date(instrument, frequency)
+            return date_bar[0], date_bar[-1]
         except Exception as e:
             raise e
 
@@ -38,15 +38,11 @@ class BaseDataSource(AbstractDataSource):
             bars = bars[left:right]
             return bars if fields is None else bars[fields]
         except Exception as e:
-            # TODO:log error
             return None
-
-    def get_fee(self, instrument):
-        return instrument.fee
 
     def get_calendar(self, instrument, frequency):
         try:
-            bars = get_trade_date(instrument, frequency)
-            return bars
+            date_bar = get_trade_date(instrument, frequency)
+            return date_bar
         except Exception as e:
             return None

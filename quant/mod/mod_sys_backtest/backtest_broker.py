@@ -5,20 +5,19 @@
 @time = 2017/5/20 21:22
 @annotation = ''
 """
-from quant.portfolio import init_portfolio
 
-from quant.const import ORDER_STATUS, SIDE, ORDER_TYPE
+from quant.const import ORDER_STATUS
 from quant.events import Event, EVENT
 from quant.interface import AbstractBroker
-from quant.modle.order import Order
-from quant.modle.trade import Trade
+from .matcher import Matcher
+from .utils import init_portfolio
 
 
 class BackTestBroker(AbstractBroker):
-    def __init__(self, env):
+    def __init__(self, env, mod_config):
         self._env = env
         self._open_orders = []
-        self._matcher = PriceHandler(env)
+        self._matcher = Matcher(env)
 
         # 该事件会触发策略的before_trading函数
         self._env.event_bus.add_listener(EVENT.BEFORE_TRADING, self.before_trading)
@@ -27,7 +26,7 @@ class BackTestBroker(AbstractBroker):
         # 该事件会触发策略的after_trading函数
         self._env.event_bus.add_listener(EVENT.AFTER_TRADING, self.after_trading)
 
-    def get_open_orders(self, symbol):
+    def get_open_orders(self, symbol=None):
         if symbol is None:
             return [order for account, order in self._open_orders]
         else:
@@ -37,7 +36,7 @@ class BackTestBroker(AbstractBroker):
         return init_portfolio(self._env)
 
     def cancel_order(self, order):
-        account = self._env.get_account(order.symbol)
+        account = self._env.get_account_by_symbol(order.symbol)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_CANCEL, account=account, order=order))
         order.cancel("{order_id} order has been cancelled by user.").format(order_id=order.order_id)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_CANCELLATION_PASS, account=account, order=order))
@@ -46,8 +45,8 @@ class BackTestBroker(AbstractBroker):
         except ValueError:
             pass
 
-    def submit_order(self, order: Order):
-        account = self._env.get_account(order.symbol)
+    def submit_order(self, order):
+        account = self._env.get_account_by_symbol(order.symbol)
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
@@ -83,37 +82,3 @@ class BackTestBroker(AbstractBroker):
         for account, order in final_orders:
             if order.status == ORDER_STATUS.REJECTED or order.status == ORDER_STATUS.CANCELLED:
                 self._env.event_bus.publish_event(Event(EVENT.ORDER_UNSOLICITED_UPDATE, account=account, order=order))
-
-
-class PriceHandler(object):
-    def __init__(self, env):
-        self._calendar_dt = None
-        self._trading_dt = None
-        self._env = env
-
-    def update(self, calendar_dt, trading_dt):
-        self._calendar_dt = calendar_dt
-        self._trading_dt = trading_dt
-
-    def match(self, open_orders):
-        for account, order in open_orders:
-            last_price = self._env.get_last_price(order.symbol)
-            symbol = order.symbol
-            instrument = self._env.get_instrument(symbol)
-            if order.type == ORDER_TYPE.LIMIT:
-                if order.side == SIDE.BUY and (order.price < last_price or account.cash < order.trade_cost):
-                    continue
-                if order.side == SIDE.SELL and \
-                        (order.price > last_price or account.positions[order.symbol] < order.amount):
-                    continue
-            order.fill()
-            trade = Trade.create_trade(
-                order_id=order.order_id,
-                symbol=order.symbol,
-                side=order.side,
-                frozen_price=order.price,
-                frozen_amount=order.amount,
-                fee=instrument.fee,
-                trade_cost=order.trade_cost,
-            )
-            self._env.event_bus.publish_event(Event(EVENT.TRADE, account=account, trade=trade, order=order))

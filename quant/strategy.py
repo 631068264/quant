@@ -9,7 +9,6 @@ from quant.environment import Environment
 from quant.events import EVENT, Event
 
 
-# TODO:通过继承写策略
 class Strategy(object):
     def __init__(self, event_bus, scope, ucontext):
         self._user_context = ucontext

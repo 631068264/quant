@@ -8,7 +8,6 @@
 import os
 
 import pandas as pd
-import six
 
 
 def generate_report(result_dict, target_report_csv_path):
@@ -25,25 +24,25 @@ def generate_report(result_dict, target_report_csv_path):
     # summary.csv
     csv_txt = StringIO()
     summary = result_dict["summary"]
-    csv_txt.write(u"\n".join(sorted("{},{}".format(key, value) for key, value in six.iteritems(summary))))
+    csv_txt.write(u"\n".join(sorted("{},{}".format(key, value) for key, value in summary.items())))
     df = pd.DataFrame(data=[{"val": val} for val in summary.values()], index=summary.keys()).sort_index()
     df.to_excel(xlsx_writer, sheet_name="summary")
 
     with open(os.path.join(output_path, "summary.csv"), 'w') as csvfile:
         csvfile.write(csv_txt.getvalue())
 
-    for name in ["portfolio", "stock_account", "future_account",
-                 "stock_positions", "future_positions", "trades"]:
+    for name in ["portfolio", "crypto_account",
+                 "crypto_positions", "trades"]:
         try:
             df = result_dict[name]
         except KeyError:
             continue
 
         # replace all date in dataframe as string
-        if df.index.name == "date":
+        if df.index.name == "datetime":
             df = df.reset_index()
-            df["date"] = df["date"].apply(lambda x: x.strftime("%Y-%m-%d"))
-            df = df.set_index("date")
+            df["datetime"] = df["datetime"].apply(lambda x: x.strftime("%Y-%m-%d"))
+            df = df.set_index("datetime")
 
         csv_txt = StringIO()
         csv_txt.write(df.to_csv(encoding='utf-8'))

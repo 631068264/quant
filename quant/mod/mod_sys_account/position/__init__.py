@@ -6,7 +6,7 @@
 @annotation = ''
 """
 
-from .stock_position import StockPosition
+from .crypto_position import CryptoPosition
 
 
 

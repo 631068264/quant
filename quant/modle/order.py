@@ -7,61 +7,50 @@
 """
 import time
 
-from quant import id_gen
-from quant.const import ORDER_STATUS, ORDER_TYPE, SIDE
+from quant import id_gen, repr_print
+from quant.const import ORDER_STATUS
 from quant.environment import Environment
 
 
 class Order(object):
     """订单"""
+    __repr__ = repr_print.repr_dict
 
     def __init__(self):
         self.order_id = None
         self.create_dt = None
         self.trade_dt = None
-        # frozen for account sell
-        self.amount = None
-        # frozen for account buy
-        self.trade_cost = None
-        self.price = None
         self.symbol = None
+        self.price = None
+        self.amount = None
+        self.fill_amount = None
+        self.fee = None
         self.side = None
-        self.status = None
         self.type = None
+        self.status = None
         self.message = None
 
     @classmethod
-    def create_order(cls, symbol, price=float(0),
-                     amount=float(0), side=None, style=None):
+    def create_order(cls, symbol, price=0.,
+                     amount=0., side=None, style=None):
         env = Environment.get_instance()
         instrument = Environment.get_instance().get_instrument(symbol)
         order = cls()
         order.order_id = next(id_gen(int(time.time())))
         order.create_dt = env.calendar_dt
         order.trade_dt = env.trading_dt
-        order.amount = float(amount)
-        if order.amount < instrument.min_amount:
-            return None
-        order.price = float(price)
         order.symbol = symbol
+        order.price = price
+        order.amount = amount
+        if order.amount < instrument.min_amount:
+            raise ValueError('order amount should > min_amount')
+        order.fill_amount = 0.
+        order.fee = instrument.fee
         order.side = side
-        order.message = ""
-        order.status = ORDER_STATUS.PENDING_NEW
         order.type = style
-        order.avg_price = 0
-        order.trade_cost = cls._cal_trade_cost(price, amount, side, style)
+        order.status = ORDER_STATUS.PENDING_NEW
+        order.message = ""
         return order
-
-    @classmethod
-    def _cal_trade_cost(cls, price=float(0), amount=float(0), side=None, style=None):
-        """"""
-        if side == SIDE.SELL:
-            return float(0)
-        if style == ORDER_TYPE.LIMIT:
-            trade_cost = price * amount
-        else:
-            trade_cost = price
-        return float(trade_cost)
 
     def is_final(self):
         return self.status not in {
@@ -73,11 +62,18 @@ class Order(object):
     def active(self):
         self.status = ORDER_STATUS.ACTIVE
 
-    def fill(self):
-        self.status = ORDER_STATUS.FILLED
+    @property
+    def unfilled_amount(self):
+        return self.amount - self.fill_amount
+
+    def fill(self, trade):
+        amount = self.fill_amount + trade.amount
+        assert amount <= self.amount
+        self.fill_amount = amount
+        if self.unfilled_amount == 0:
+            self.status = ORDER_STATUS.FILLED
 
     def reject(self, reject_reason):
-        # TODO:log
         if not self.is_final():
             self.message = reject_reason
             self.status = ORDER_STATUS.REJECTED

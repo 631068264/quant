@@ -7,11 +7,14 @@
 """
 from __future__ import division
 
+from decimal import Decimal, getcontext
+
 from quant.const import ORDER_TYPE, SIDE
 from quant.environment import Environment
 from quant.modle.order import Order
 
 __all__ = []
+getcontext().prec = 10
 
 
 def export_as_api(func):
@@ -19,64 +22,41 @@ def export_as_api(func):
     return func
 
 
-def _safe_market_order(order):
-    """只过滤 market order"""
-    if order is None:
-        return None
-    env = Environment.get_instance()
-    account = env.get_account(order.symbol)
-    if order.type == ORDER_TYPE.MARKET:
-        if order.side == SIDE.BUY:
-            if account.cash < order.trade_cost:
-                order.reject("Not enough money [buy] {symbol} [need] {price} [cash] {cash}".format(
-                    symbol=order.symbol, price=order.price * order.amount, cash=account.cash))
-                return None
-        elif order.side == SIDE.SELL:
-            if account.positions[order.symbol] < order.amount:
-                order.reject("Not enough positions [sell] {symbol} [need] {amount} [sellable] {positions}".format(
-                    symbol=order.symbol, amount=order.amount, positions=account.positions[order.symbol]
-                ))
-                return None
-
-    env.broker.submit_order(order)
-    return order
-
-
 def _order(symbol, price=None, amount=None, order_type=None):
     order = None
+    env = Environment.get_instance()
+    # 限价单
     if order_type == ORDER_TYPE.LIMIT and price is not None and amount is not None:
         # limit order
         if amount == 0 or price == 0:
-            # TODO:log
             return None
         side = SIDE.BUY if amount > 0 else SIDE.SELL
         order = Order.create_order(symbol, price, abs(amount), side, order_type)
+    # 市价单
     elif order_type == ORDER_TYPE.MARKET:
         # market order
-        last_price = Environment.get_instance().get_last_price(symbol)
+        last_price = env.get_last_price(symbol)
         if price is not None and price > 0:
             side = SIDE.BUY
-            amount = float(price / last_price)
-            order = Order.create_order(symbol, price, amount, side, order_type)
+            order = Order.create_order(symbol, last_price, Decimal(price) / Decimal(last_price), side, order_type)
         elif amount is not None and amount < 0:
             side = SIDE.SELL
-            last_price = Environment.get_instance().get_last_price(symbol)
             order = Order.create_order(symbol, last_price, abs(amount), side, order_type)
-
-    return _safe_market_order(order)
+    if order is not None and env.can_submit_order(order):
+        env.broker.submit_order(order)
 
 
 @export_as_api
 def all_in(symbol):
     env = Environment.get_instance()
-    account = env.get_account(symbol)
+    account = env.get_account_by_symbol(symbol)
     return market_buy(symbol, price=account.cash)
 
 
 @export_as_api
 def all_out(symbol):
     env = Environment.get_instance()
-    account = env.get_account(symbol)
+    account = env.get_account_by_symbol(symbol)
     position = account.positions[symbol]
     return market_sell(symbol, amount=position.amount)
 

@@ -9,16 +9,16 @@ import pandas as pd
 import six
 
 from quant.data_source import INSTRUMENT_DICT
-from quant.interface import AbstractDataSource
 from quant.modle.bar import Bar
 
 valid_fields = {"open", "high", "low", "close", "volume", "datetime"}
 
 
 class DataProxy(object):
-    def __init__(self, data_source: AbstractDataSource):
+    def __init__(self, data_source):
         self._data_source = data_source
         self._instruments = INSTRUMENT_DICT
+        self._dates = {}
 
     def get_bar(self, symbol, dt, frequency):
         instrument = self.instrument(symbol)
@@ -28,7 +28,7 @@ class DataProxy(object):
 
     def _handle_fields(self, fields):
         if fields is None:
-            return valid_fields
+            return list(valid_fields)
         if isinstance(fields, six.string_types):
             return fields
         return fields
@@ -48,11 +48,7 @@ class DataProxy(object):
         data = self._data_source.history_bar(instrument, frequency, bar_count, dt, field)
         if data is None:
             return None
-        # pd.Series(data[field], index=[t.to_pydatetime() for t in data['datetime']])
         return data
-
-    def get_fee(self, symbol):
-        return self._data_source.get_fee(self.instrument(symbol))
 
     def instrument(self, symbols):
         def get_instrument(symbol):
@@ -91,16 +87,17 @@ class DataProxy(object):
         pos = trade_date.searchsorted(dt)
         if pos >= n:
             return trade_date[pos - n]
-        else:
-            return trade_date[0]
+        return trade_date[0]
 
-    def get_next_date(self, symbol, frequency, dt):
+    def get_next_date(self, symbol, frequency, dt, n=1):
         trade_date = self._get_calendar(symbol, frequency)
         if trade_date is None:
             return None
         dt = pd.Timestamp(dt)
         pos = trade_date.searchsorted(dt, side='right')
-        return trade_date[pos]
+        if pos + n > len(trade_date):
+            return trade_date[-1]
+        return trade_date[pos + n - 1]
 
     def get_calendar_range(self, symbol, frequency):
         return self._data_source.get_calendar_range(self.instrument(symbol), frequency)

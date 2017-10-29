@@ -10,7 +10,6 @@ import abc
 from six import with_metaclass
 
 
-# TODO:写说明
 class AbstractDataSource(with_metaclass(abc.ABCMeta)):
     """数据源接口"""
 
@@ -28,10 +27,6 @@ class AbstractDataSource(with_metaclass(abc.ABCMeta)):
 
     @abc.abstractmethod
     def get_calendar_range(self, instrument, frequency):
-        pass
-
-    @abc.abstractmethod
-    def get_fee(self, instrument):
         pass
 
 
@@ -79,13 +74,11 @@ class AbstractValidator(with_metaclass(abc.ABCMeta)):
     """检验器"""
 
     @abc.abstractclassmethod
-    def release_order(self, account, order):
-        """放行"""
+    def can_submit_order(self, account, order):
         pass
 
     @abc.abstractclassmethod
-    def intercept_order(self, account, order):
-        """拦截"""
+    def can_cancel_order(self, account, order):
         pass
 
 

@@ -5,15 +5,33 @@
 @time = 2017/10/22 10:54
 @annotation = ''
 """
-from quant import AbstractValidator, ORDER_TYPE
+from quant import AbstractValidator, ACCOUNT_TYPE, SIDE
 
 
 class PositionValidator(AbstractValidator):
-    def release_order(self, account, order):
-        # TODO:
-        if order.type != ORDER_TYPE.LIMIT:
+    def _crypto_validator(self, account, order):
+        if order.side == SIDE.BUY:
             return True
-        return True
 
-    def intercept_order(self, account, order):
-        pass
+        position = account.postitions[order.symbol]
+        if order.amount <= position.sellable:
+            return True
+
+        order.reject(
+            "Order Rejected: not enough stock {order_id} to sell, you want to sell {quantity},"
+            " sellable {sellable}".format(
+                order_id=order.order_id,
+                quantity=order.amount,
+                sellable=position.sellable,
+            )
+        )
+        return False
+
+    def can_submit_order(self, account, order):
+        if account.type == ACCOUNT_TYPE.CRYPTO.name:
+            return self._crypto_validator(account, order)
+        else:
+            raise NotImplementedError
+
+    def can_cancel_order(self, account, order):
+        return True

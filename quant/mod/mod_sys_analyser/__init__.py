@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 @author = 'wyx'
-@time = 2017/5/28 14:18
+@time = 2017/5/25 15:00
 @annotation = ''
 """
 __config__ = {
-    'signal': False,
+    "record": True,
+    "report_save_path": None,
+    "plot": True,
+    "plot_save_path": None,
 }
 
 

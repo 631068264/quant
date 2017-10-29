@@ -7,55 +7,38 @@
 """
 import time
 
-from quant import id_gen, safe_float
-from quant.const import SIDE
+from quant import id_gen
 from quant.environment import Environment
-from quant.exception import ApplyException
 
 
 class Trade(object):
     """订单"""
 
     def __init__(self):
+        self.trade_id = None
         self.order_id = None
         self.create_dt = None
         self.trade_dt = None
-        self.price = None
-        self.amount = None
-        self.trade_cost = None
-        self.fee = None  # 手续费
-        self.trade_id = None
         self.symbol = None
         self.side = None
+        self.fee = None
         self.price = None
+        self.frozen_price = None
+        self.amount = None
 
     @classmethod
-    def create_trade(cls, order_id, symbol, side, frozen_price=float(0),
-                     frozen_amount=float(0), fee=0., trade_cost=float(0)):
+    def create_trade(cls, order_id, symbol, side, price=0., frozen_price=0.,
+                     amount=0., fee=0.):
         env = Environment.get_instance()
         trade = cls()
+        trade.trade_id = next(id_gen(int(time.time())))
         trade.order_id = order_id
-        trade.symbol = symbol
-        trade.side = side
         trade.create_dt = env.calendar_dt
         trade.trade_dt = env.trading_dt
+        trade.symbol = symbol
+        trade.side = side
         trade.fee = fee
-        trade.price = frozen_price
-        trade.amount = frozen_amount
-        trade.trade_cost = trade_cost
-        trade.trade_id = next(id_gen(int(time.time())))
+        trade.price = price
+        trade.frozen_price = frozen_price
+        trade.amount = amount
         return trade
-
-    @property
-    def amount_after_fee(self):
-        """交易后 所得要扣手续费"""
-        if self.side != SIDE.BUY:
-            raise ApplyException("just for SIDE.BUY")
-        return safe_float(self.amount * (1 - self.fee))
-
-    @property
-    def price_after_fee(self):
-        """交易后 所得要扣手续费"""
-        if self.side != SIDE.SELL:
-            raise ApplyException("just for SIDE.SELL")
-        return safe_float(self.price * (1 - self.fee))

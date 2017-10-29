@@ -24,6 +24,7 @@ class Risk(object):
         """最大回撤"""
         if self._max_drawdown is not None:
             return self._max_drawdown
+
         if len(self._portfolio) < 1:
             self._max_drawdown = np.nan
             return np.nan

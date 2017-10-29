@@ -9,13 +9,13 @@ import click
 import six
 
 from base import util
-from quant import data_source
+from quant import data_source, ACCOUNT_TYPE, Portfolio
 from quant.context import Context
 from quant.environment import Environment
 from quant.events import EVENT, Event
 from quant.executor import Executor
 from quant.mod import ModHandler
-from quant.mod.mod_sys_account.account import create_benchmark_portfolio
+from quant.modle.base_position import Positions
 from quant.strategy import Strategy
 
 
@@ -37,35 +37,41 @@ def test_strategy():
     pass
 
 
-def _adjust_date(env):
-    config = env.config
-    frequency = config.base.frequency
-    origin_start_date, origin_end_date = config.base.start_date, config.base.end_date
-    start, end = env.get_calendar_range(frequency)
-
-    config.base.start_date = max(start, origin_start_date)
-    config.base.end_date = min(end, origin_end_date)
-
-    config.base.trading_calendar = env.get_calendar(frequency, config.base.start_date, config.base.end_date)
-
-    assert len(config.base.trading_calendar) != 0
-
-    config.base.start_date = config.base.trading_calendar[0]
-    config.base.end_date = config.base.trading_calendar[-1]
-    # config.base.timezone = pytz.utc
-
-
-def _check_benchmark(env):
+def _adjust_env(env):
+    # TODO: 可以禁止benchmark
     base_config = env.config.base
+    frequency = base_config.frequency
+
+    def create_benchmark_portfolio():
+        BenchmarkAccount = env.get_account(ACCOUNT_TYPE.BENCHMARK.name)
+        BenchmarkPosition = env.get_position(ACCOUNT_TYPE.BENCHMARK.name)
+        total_cash = sum(base_config.account.values())
+        accounts = {
+            ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(total_cash, Positions(BenchmarkPosition)),
+        }
+        return Portfolio(base_config.start_date, total_cash, accounts)
+
+    # adjust benchmark
     symbol = getattr(base_config, "symbol", None)
     benchmark = getattr(base_config, "benchmark", None)
-
     if isinstance(symbol, six.string_types) and benchmark is None:
         base_config.benchmark = symbol
-        env.benchmark_portfolio = create_benchmark_portfolio(env)
+    env.benchmark_portfolio = create_benchmark_portfolio()
 
-    if benchmark is None:
-        return
+    # adjust trade dates
+    benchmark_symbol = base_config.benchmark
+    origin_start_date, origin_end_date = base_config.start_date, base_config.end_date
+    start, end = env.get_calendar_range(benchmark_symbol, frequency)
+
+    base_config.start_date = max(start, origin_start_date)
+    base_config.end_date = min(end, origin_end_date)
+    base_config.trading_calendar = env.get_calendar(benchmark_symbol,
+                                                    frequency,
+                                                    base_config.start_date,
+                                                    base_config.end_date)
+    assert len(base_config.trading_calendar) != 0
+    base_config.start_date = base_config.trading_calendar[0]
+    base_config.end_date = base_config.trading_calendar[-1]
 
 
 def run(config, kwargs):
@@ -76,10 +82,9 @@ def run(config, kwargs):
         'after_trading': kwargs.after_trading,
     }
     env = Environment(config)
+    _adjust_env(env)
     mod_handler = ModHandler(env)
     mod_handler.start()
-    _adjust_date(env)
-    _check_benchmark(env)
     try:
         context = Context()
         env.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))

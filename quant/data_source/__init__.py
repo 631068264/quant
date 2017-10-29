@@ -25,7 +25,7 @@ HDF5_COMP_LIB = 'blosc'
 
 
 def update_bundle():
-    progress_bar = click.progressbar(length=len(INSTRUMENT_DICT.values()) * len(const.PERIOD.ALL),
+    progress_bar = click.progressbar(length=len(INSTRUMENT_DICT.values()) * len(const.FREQUENCY.ALL),
                                      label="Bundle updating...")
 
     def resample(df, frequency):
@@ -52,37 +52,37 @@ def update_bundle():
         df["date"] = df.index
         return df
 
-    def save(df):
-        resample_data = df
+    def save(df, frequency):
         h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
         with pd.HDFStore(h5_file_path, complevel=HDF5_COMP_LEVEL, complib=HDF5_COMP_LIB) as h5:
-            for period in const.PERIOD.ALL:
-                if not period == const.PERIOD.ONE_MINUTE:
-                    resample_data = resample(df, period)
-                bar_name = instrument.bar_name(period)
-                h5.put(bar_name, resample_data)
-                h5.put(bar_name + 'date', resample_data['date'])
-                progress_bar.update(1)
+            bar_name = instrument.bar_name(frequency)
+            h5.put(bar_name, df)
+            h5.put(bar_name + 'date', df['date'])
+            progress_bar.update(1)
 
     db_kline = dao.kline()
     if not os.path.exists(BUNDLE_DIR):
         os.mkdir(BUNDLE_DIR)
 
     for instrument in INSTRUMENT_DICT.values():
-        # TODO fix limit
-        data = QS(db_kline).table(getattr(T, instrument.bar_name(const.PERIOD.ONE_MINUTE))) \
-            .order_by(F.date, desc=True).limit(0, 20000).select("*")
-        df = pd.DataFrame(data).sort_values(by="date")
-        df = fill_df(df)
-        save(df)
+        # data = QS(db_kline).table(getattr(T, instrument.bar_name(const.FREQUENCY.ONE_MINUTE))) \
+        #     .order_by(F.date, desc=True).limit(0, 20000).select("*")
+        for frequency in const.FREQUENCY.ALL:
+            data = QS(db_kline).table(getattr(T, instrument.bar_name(frequency=frequency))) \
+                .order_by(F.date, desc=True).limit(0, 20000).select("*")
+            df = pd.DataFrame(data).sort_values(by="date")
+            df = fill_df(df)
+            # if frequency != const.FREQUENCY.ONE_MINUTE:
+            #     df = resample(df, frequency)
+            save(df, frequency)
     progress_bar.render_finish()
 
 
-@lru_cache(None)
-def get_all_bar(instrument, period):
+@lru_cache(1024)
+def get_all_bar(instrument, frequency):
     try:
         h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
-        df = pd.read_hdf(h5_file_path, instrument.bar_name(period))
+        df = pd.read_hdf(h5_file_path, instrument.bar_name(frequency))
         fields = df.columns.values.tolist()
         fields.remove("date")
         dtype = np.dtype([("datetime", pd.Timestamp)] + [(f, np.dtype('float64')) for f in fields])
@@ -95,10 +95,11 @@ def get_all_bar(instrument, period):
         raise e
 
 
-def get_trade_date(instrument, period):
+@lru_cache(1024)
+def get_trade_date(instrument, frequency):
     try:
         h5_file_path = os.path.join(BUNDLE_DIR, instrument.symbol + ".h5")
-        series = pd.read_hdf(h5_file_path, instrument.bar_name(period) + "date")
+        series = pd.read_hdf(h5_file_path, instrument.bar_name(frequency) + "date")
         result = np.array([pd.Timestamp(date) for date in series.values], dtype=pd.Timestamp)
         return result
     except Exception as e:

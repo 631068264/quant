@@ -9,8 +9,7 @@ from enum import Enum
 
 
 class ACCOUNT_TYPE(Enum):
-    # TODO:FUTURE
-    STOCK = "STOCK"
+    CRYPTO = "CRYPTO"
     FUTURE = "FUTURE"
     BENCHMARK = "BENCHMARK"
 
@@ -18,6 +17,11 @@ class ACCOUNT_TYPE(Enum):
 class SIDE(Enum):
     BUY = "BUY"
     SELL = "SELL"
+
+    NAME_DICT = {
+        BUY: 1,
+        SELL: -1,
+    }
 
 
 class ORDER_TYPE(Enum):
@@ -53,7 +57,7 @@ Base Data Source
 """
 
 
-class PERIOD(object):
+class FREQUENCY(object):
     ONE_MINUTE = 1
     THREE_MINUTE = 3
     FIVE_MINUTE = 5
@@ -75,15 +79,15 @@ class PERIOD(object):
 
 class PDMINUTE(object):
     NAME_DICT = {
-        PERIOD.ONE_MINUTE: "1min",
-        PERIOD.THREE_MINUTE: "3min",
-        PERIOD.FIVE_MINUTE: "5min",
-        PERIOD.QUARTER_HOUR: "15min",
-        PERIOD.HALF_HOUR: "30min",
-        PERIOD.HOUR: "1H",
-        PERIOD.TWO_HOUR: "2H",
-        PERIOD.FOUR_HOUR: "4H",
-        PERIOD.SIX_HOUR: "6H",
-        PERIOD.TWELVE_HOUR: "12H",
-        PERIOD.DAY: "1D",
+        FREQUENCY.ONE_MINUTE: "1min",
+        FREQUENCY.THREE_MINUTE: "3min",
+        FREQUENCY.FIVE_MINUTE: "5min",
+        FREQUENCY.QUARTER_HOUR: "15min",
+        FREQUENCY.HALF_HOUR: "30min",
+        FREQUENCY.HOUR: "1H",
+        FREQUENCY.TWO_HOUR: "2H",
+        FREQUENCY.FOUR_HOUR: "4H",
+        FREQUENCY.SIX_HOUR: "6H",
+        FREQUENCY.TWELVE_HOUR: "12H",
+        FREQUENCY.DAY: "1D",
     }
