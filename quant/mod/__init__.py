@@ -24,18 +24,34 @@ class ModHandler(object):
         self._mod_list = []
         self._mod_dict = {}
 
-    def _set_up(self):
-        for mod_name in SYSTEM_MOD_LIST:
-            lib_name = "model.mod.mod_" + mod_name
-            mod_module = import_mod(lib_name)
-            mod_config = AttrDict(copy.deepcopy(getattr(mod_module, "__config__", {})))
+    def _set_env(self):
+        config = self._env.config
+
+        if getattr(config, 'mod', None) is None:
+            return
+        # filter mod
+        for mod_name, mod_config in config.mod:
+            if not mod_config.enabled or mod_name not in SYSTEM_MOD_LIST:
+                continue
             self._mod_list.append((mod_name, mod_config))
-            mod = mod_module.load_mod()
+        # update mod config
+        for index, (mod_name, user_mod_config) in enumerate(self._mod_list):
+            lib_name = "model.mod.mod_" + mod_name
+            try:
+                mod_module = import_mod(lib_name)
+                mod = mod_module.load_mod()
+            except Exception as e:
+                continue
+            mod_config = AttrDict(copy.deepcopy(getattr(mod_module, "__config__", {})))
+            mod_config.update(user_mod_config)
+            setattr(config.mod, mod_name, mod_config)
+            self._mod_list[index] = (mod_name, mod_config)
             self._mod_dict[mod_name] = mod
+
         self._mod_list = sorted(self._mod_list, key=lambda item: getattr(item[1], "priority", 100))
 
     def start(self):
-        self._set_up()
+        self._set_env()
         for mod_name, mod_config in self._mod_list:
             self._mod_dict[mod_name].start(self._env, mod_config)
 
@@ -48,7 +64,7 @@ class ModHandler(object):
         return result
 
 
-# TODO: progress realtime settlement analyser
+# TODO: realtime
 SYSTEM_MOD_LIST = [
     "sys_account",
     "sys_analyser",

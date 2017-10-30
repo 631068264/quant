@@ -205,6 +205,11 @@ class AnalyserMod(AbstractMod):
                 positions_df = positions_df.set_index("datetime").sort_index()
             result_dict["{}_positions".format(account_name)] = positions_df
 
+        if self._mod_config.pickle_path:
+            import pickle
+            with open(self._mod_config.pickle_path) as f:
+                pickle.dump(result_dict, f)
+
         if self._mod_config.report_save_path:
             from .report import generate_report
             generate_report(result_dict, self._mod_config.report_save_path)

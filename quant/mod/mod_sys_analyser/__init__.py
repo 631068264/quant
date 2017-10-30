@@ -10,6 +10,7 @@ __config__ = {
     "report_save_path": None,
     "plot": True,
     "plot_save_path": None,
+    "pickle_path": None,
 }
 
 
