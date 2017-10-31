@@ -64,7 +64,6 @@ class ModHandler(object):
         return result
 
 
-# TODO: realtime
 SYSTEM_MOD_LIST = [
     "sys_account",
     "sys_analyser",

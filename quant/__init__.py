@@ -7,6 +7,8 @@
 """
 import collections
 
+import six
+
 
 def id_gen(start=1):
     """获取id"""
@@ -69,23 +71,6 @@ class AttrDict(object):
             result_dict[k] = v
         return result_dict
 
-
-instrument_info = {
-    # TODO:这东西位置改一下
-    # 修改_get_all_instrument/update_bundle
-    "okcn": [
-        {
-            "pair": "btc_cny",
-            "fee": 0.2,
-            "min_amount": 0.01,
-        },
-        {
-            "pair": "ltc_cny",
-            "fee": 0.2,
-            "min_amount": 0.1,
-        },
-    ],
-}
 
 from quant.modle.bar import *
 from quant.const import *

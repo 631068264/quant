@@ -37,12 +37,3 @@ class Instrument(object):
         return ACCOUNT_TYPE.CRYPTO.name
 
     __repr__ = repr_print.repr_dict
-
-
-def get_all_instrument(instrument_info):
-    instruments = {}
-    for exchange, infos in instrument_info.items():
-        for info in infos:
-            instrument = Instrument(exchange, **info)
-            instruments[instrument.symbol] = instrument
-    return instruments

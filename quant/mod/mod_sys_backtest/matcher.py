@@ -12,6 +12,8 @@ from .decider import SlippageDecider
 
 
 class Matcher(object):
+    """撮合机制"""
+
     def __init__(self, env):
         self._calendar_dt = None
         self._trading_dt = None

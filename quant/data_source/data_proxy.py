@@ -74,7 +74,6 @@ class DataProxy(object):
         left = trade_date.searchsorted(start_date)
         right = trade_date.searchsorted(end_date, side='right')
         if right == 0:
-            # TODO: 日期raise
             return None
 
         return trade_date[left:right]

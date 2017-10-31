@@ -10,12 +10,12 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from quant import safe_float, Portfolio
+from quant import safe_float, Portfolio, const
 from quant.const import ACCOUNT_TYPE
 from quant.events import EVENT
 from quant.interface import AbstractMod
-from quant.mod.mod_sys_analyser.risk import Risk
 from quant.modle.trade import Trade
+from .metrics import Metrics
 
 
 def _wrap_portfolio(dt, portfolio: Portfolio):
@@ -110,7 +110,7 @@ class AnalyserMod(AbstractMod):
         portfolio = self._env.portfolio
         benchmark_portfolio = self._env.benchmark_portfolio
 
-        self._portfolio_current_returns.append(portfolio.pnl_returns)
+        self._portfolio_current_returns.append(portfolio.current_pnl_returns)
         self._total_portfolios.append(_wrap_portfolio(dt, portfolio))
 
         if benchmark_portfolio is None:
@@ -124,14 +124,13 @@ class AnalyserMod(AbstractMod):
             for symbol, position in account.positions.items():
                 self._positions[account_type].append(_wrap_position(dt, symbol, position))
 
-    def stop(self, *args, **kwargs):
-        if not self._enabled or len(self._total_portfolios) == 0:
+    def stop(self, code, **kwargs):
+        if code != const.EXIT_CODE.EXIT_SUCCESS or not self._enabled or len(self._total_portfolios) == 0:
             return
-        base_config = self._env.config.base
-        strategy_name = getattr(base_config, "strategy_name", "strategy")
 
+        base_config = self._env.config.base
         summary = {
-            'strategy_name': strategy_name,
+            'strategy_name': getattr(base_config, "strategy_name", "strategy"),
             'start_date': base_config.start_date.strftime('%Y-%m-%d'),
             'end_date': base_config.end_date.strftime('%Y-%m-%d'),
             'run_type': base_config.run_type.value,
@@ -140,13 +139,10 @@ class AnalyserMod(AbstractMod):
         for account_type, starting_cash in base_config.accounts.items():
             summary[account_type] = starting_cash
 
-        risk = Risk(np.array(self._portfolio_current_returns),
-                    np.array(self._benchmark_current_returns),
-                    (base_config.end_date - base_config.start_date).days + 1)
-
-        summary.update({
-            "max_drawdown": safe_float(risk.max_drawdown, 3),
-        })
+        metrics = Metrics(np.array(self._portfolio_current_returns),
+                          np.array(self._benchmark_current_returns),
+                          (base_config.end_date - base_config.start_date).days + 1)
+        summary.update(metrics.all)
 
         summary.update({
             'total_value': safe_float(self._env.portfolio.total_value),
@@ -154,6 +150,7 @@ class AnalyserMod(AbstractMod):
             'total_returns': safe_float(self._env.portfolio.pnl_returns),
             'annualized_returns': safe_float(self._env.portfolio.annualized_returns),
             'unit_net_value': safe_float(self._env.portfolio.unit_net_value),
+            'start_cash': self._env.portfolio.start_cash,
         })
 
         if self._env.benchmark_portfolio:

@@ -18,7 +18,6 @@ class BaseDataSource(AbstractDataSource):
                 return None
             return bars[pos]
         except Exception as e:
-            # TODO:log error
             return None
 
     def get_calendar_range(self, instrument, frequency):

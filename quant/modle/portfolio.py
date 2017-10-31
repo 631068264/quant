@@ -7,8 +7,6 @@
 """
 from __future__ import division
 
-import six
-
 from quant.const import ACCOUNT_TYPE
 from quant.environment import Environment
 from quant.events import EVENT
@@ -35,6 +33,9 @@ class Portfolio(object):
         event_bus = Environment.get_instance().event_bus
         event_bus.prepend_listener(EVENT.PRE_BEFORE_TRADING, self._pre_before_trading)
 
+    def _pre_before_trading(self, event):
+        self.static_total_value = self.total_value
+
     @property
     def crypto_account(self):
         """
@@ -45,7 +46,8 @@ class Portfolio(object):
     @property
     def total_value(self):
         """
-        [float] 总收益 = 可用资金 + 市值
+        实时净值
+        总收益 = 可用资金 + 市值
         """
         return sum(account.total_value for account in self.accounts.values())
 
@@ -61,22 +63,19 @@ class Portfolio(object):
         """
         [float] 市值 sum(拥有的货币数量 * 对应的最新价)
         """
-        return sum(account.total_market_value for account in six.itervalues(self.accounts))
+        return sum(account.total_market_value for account in self.accounts.values())
 
     @property
     def market_value(self):
-        return {account.type.name: account.market_value for account in six.itervalues(self.accounts)}
+        return {account.type.name: account.market_value for account in self.accounts.values()}
 
     @property
     def frozen_cash(self):
-        return sum(account.frozen_cash for account in six.itervalues(self.accounts))
+        return sum(account.frozen_cash for account in self.accounts.values())
 
     @property
     def frozen_amount(self):
-        return {account.type.name: account.frozen_amount for account in six.itervalues(self.accounts)}
-
-    def _pre_before_trading(self, event):
-        self.static_total_value = self.total_value
+        return {account.type.name: account.frozen_amount for account in self.accounts.values()}
 
     @property
     def current_pnl(self):
@@ -89,12 +88,12 @@ class Portfolio(object):
 
     @property
     def pnl(self):
-        """盈亏"""
-        return self.total_value - self.start_cash
+        """总收益"""
+        return self.static_total_value - self.start_cash
 
     @property
     def pnl_returns(self):
-        """收益率"""
+        """总收益率"""
         return self.pnl / self.start_cash
 
     @property
@@ -103,7 +102,8 @@ class Portfolio(object):
         年化收益率
         """
         current_date = Environment.get_instance().trading_dt.date()
-        return (1 + self.pnl_returns) ** (DAYS_A_YEAR / float((current_date - self.start_date.date()).days + 1)) - 1
+        rate = self.static_total_value / self.start_cash
+        return rate ** (DAYS_A_YEAR / float((current_date - self.start_date.date()).days + 1)) - 1
 
     @property
     def unit_net_value(self):

@@ -44,6 +44,10 @@ class RUN_TYPE(Enum):
     LIVE_TRADING = 'LIVE_TRADING'
 
 
+class EXIT_CODE(Enum):
+    EXIT_SUCCESS = 'EXIT_SUCCESS'
+
+
 def enum_to_str(v):
     return v.name
 

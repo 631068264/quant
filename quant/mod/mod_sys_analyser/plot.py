@@ -41,7 +41,7 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
     index = portfolio.index = pd.to_datetime(portfolio.index)
 
     # maxdrawdown
-    portfolio_value = portfolio.total_value
+    portfolio_value = portfolio.unit_net_value * portfolio.start_cash
     xs = portfolio_value.values
     rt = portfolio.unit_net_value.values
     max_dd_end = np.argmax(np.maximum.accumulate(xs) / xs)
@@ -107,18 +107,17 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
         (0.15, label_height2, value_height2, "基准年化收益率",
          "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)), blue, black),
 
-        # (0.30, label_height, value_height, "Alpha", "{0:.4}".format(summary["alpha"]), black, black),
-        # (0.40, label_height, value_height, "Beta", "{0:.4}".format(summary["beta"]), black, black),
-        # (0.55, label_height, value_height, "Sharpe", "{0:.4}".format(summary["sharpe"]), black, black),
-        # (0.70, label_height, value_height, "Sortino", "{0:.4}".format(summary["sortino"]), black, black),
-        # (0.85, label_height, value_height, "Information Ratio", "{0:.4}".format(summary["information_ratio"]), black,
-        #  black),
-        #
-        # (0.30, label_height2, value_height2, "Volatility", "{0:.4}".format(summary["volatility"]), black, black),
+        (0.30, label_height, value_height, "Alpha", "{0:.4}".format(summary["alpha"]), black, black),
+        (0.40, label_height, value_height, "Beta", "{0:.4}".format(summary["beta"]), black, black),
+        (0.55, label_height, value_height, "Sharpe", "{0:.4}".format(summary["sharpe"]), black, black),
+        (0.70, label_height, value_height, "Sortino", "{0:.4}".format(summary["sortino"]), black, black),
+        (0.85, label_height, value_height, "Information Ratio", "{0:.4}".format(summary["information_ratio"]), black,
+         black),
+        (0.30, label_height2, value_height2, "Volatility", "{0:.4}".format(summary["volatility"]), black, black),
         (0.40, label_height2, value_height2, "最大回撤", "{0:.3%}".format(summary["max_drawdown"]), black, black),
-        # (0.55, label_height2, value_height2, "Tracking Error", "{0:.4}".format(summary["tracking_error"]), black,
-        #  black),
-        # (0.70, label_height2, value_height2, "Downside Risk", "{0:.4}".format(summary["downside_risk"]), black, black),
+        (0.55, label_height2, value_height2, "Tracking Error", "{0:.4}".format(summary["tracking_error"]), black,
+         black),
+        (0.70, label_height2, value_height2, "Downside Risk", "{0:.4}".format(summary["downside_risk"]), black, black),
     ]
 
     ax = plt.subplot(gs[:3, :-1])

@@ -14,5 +14,3 @@ __config__ = {
 def load_mod():
     from .mod import ProgressMod
     return ProgressMod()
-
-# TODO：加入click控制

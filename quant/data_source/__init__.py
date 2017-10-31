@@ -14,10 +14,10 @@ import pandas as pd
 
 from base import dao
 from base.smartsql import QS, T, F
-from quant import const, instrument_info
-from quant.modle.instrument import get_all_instrument
+from quant import const
+from quant.data_source.instrument_config import get_all_crypto
 
-INSTRUMENT_DICT = get_all_instrument(instrument_info=instrument_info)
+INSTRUMENT_DICT = get_all_crypto()
 # TODO fix bundle path
 BUNDLE_DIR = os.path.join(os.path.dirname(__file__), "bundle")
 HDF5_COMP_LEVEL = 4

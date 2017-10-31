@@ -9,7 +9,7 @@ import click
 import six
 
 from base import util
-from quant import data_source, ACCOUNT_TYPE, Portfolio
+from quant import data_source, ACCOUNT_TYPE, Portfolio, const
 from quant.context import Context
 from quant.environment import Environment
 from quant.events import EVENT, Event
@@ -92,12 +92,10 @@ def run(config, kwargs):
         strategy.init()
         Executor(env).run()
 
-        result = mod_handler.stop()
+        result = mod_handler.stop(const.EXIT_CODE.EXIT_SUCCESS)
         return result
     except Exception as e:
         print(util.error_msg())
-        # TODO:
-        pass
 
 
 if __name__ == '__main__':
