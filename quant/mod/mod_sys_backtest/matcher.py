@@ -5,8 +5,8 @@
 @time = 2017/10/24 15:20
 @annotation = ''
 """
-
-from quant import ORDER_TYPE, SIDE, Event, EVENT
+from quant.const import ORDER_TYPE, SIDE
+from quant.events import Event, EVENT
 from quant.modle.trade import Trade
 from .decider import SlippageDecider
 

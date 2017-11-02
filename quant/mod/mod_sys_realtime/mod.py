@@ -5,10 +5,13 @@
 @time = 2017/10/29 08:42
 @annotation = ''
 """
-from quant import AbstractMod, RUN_TYPE
 
 
 # TODO:
+from quant.const import RUN_TYPE
+from quant.interface import AbstractMod
+
+
 class RealtimeMod(AbstractMod):
     def start(self, env, mod_config):
         base_config = env.config.base

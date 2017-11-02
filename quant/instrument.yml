@@ -1,0 +1,3 @@
+okcn:
+- {fee: 0.2, min_amount: 0.01, pair: btc_cny}
+- {fee: 0.2, min_amount: 0.1, pair: ltc_cny}

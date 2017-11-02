@@ -5,9 +5,14 @@
 @time = 2017/10/23 22:31
 @annotation = ''
 """
-from quant import AbstractMod, RUN_TYPE, BaseDataSource, DataProxy, BarDict
+from quant.const import RUN_TYPE
+from quant.data_source.base_data_source import BaseDataSource
+from quant.data_source.data_proxy import DataProxy
+from quant.interface import AbstractMod
+from quant.modle.bar import BarDict
 from .backtest_broker import BackTestBroker
 from .backtest_event_source import BackTestEventSource
+from .utils import create_benchmark_portfolio
 
 
 class BackTestMod(AbstractMod):
@@ -18,6 +23,7 @@ class BackTestMod(AbstractMod):
             env.event_source = BackTestEventSource(env)
 
         env.portfolio = env.broker.get_portfolio()
+        env.benchmark_portfolio = create_benchmark_portfolio(env)
         env.data_source = BaseDataSource()
         env.data_proxy = DataProxy(env.data_source)
         env.bar_dict = BarDict(env.data_proxy, base_config.frequency)

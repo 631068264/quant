@@ -7,7 +7,7 @@
 """
 import time
 
-from quant import id_gen
+from quant.util import id_gen
 from quant.environment import Environment
 
 

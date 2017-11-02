@@ -5,17 +5,17 @@
 @time = 2017/5/28 09:15
 @annotation = ''
 """
-import click
-import six
 
-from base import util
-from quant import data_source, ACCOUNT_TYPE, Portfolio, const
+import click
+
+from quant import const
+from quant import util
 from quant.context import Context
+from quant.data_source import bar_store
 from quant.environment import Environment
 from quant.events import EVENT, Event
 from quant.executor import Executor
 from quant.mod import ModHandler
-from quant.modle.base_position import Positions
 from quant.strategy import Strategy
 
 
@@ -29,7 +29,7 @@ def cli(ctx):
 @cli.command()
 def update_bundle():
     """下载历史数据"""
-    data_source.update_bundle()
+    bar_store.update_bundle()
 
 
 @cli.command()
@@ -38,31 +38,15 @@ def test_strategy():
 
 
 def _adjust_env(env):
-    # TODO: 可以禁止benchmark
     base_config = env.config.base
     frequency = base_config.frequency
-
-    def create_benchmark_portfolio():
-        BenchmarkAccount = env.get_account(ACCOUNT_TYPE.BENCHMARK.name)
-        BenchmarkPosition = env.get_position(ACCOUNT_TYPE.BENCHMARK.name)
-        total_cash = sum(base_config.account.values())
-        accounts = {
-            ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(total_cash, Positions(BenchmarkPosition)),
-        }
-        return Portfolio(base_config.start_date, total_cash, accounts)
-
-    # adjust benchmark
-    symbol = getattr(base_config, "symbol", None)
-    benchmark = getattr(base_config, "benchmark", None)
-    if isinstance(symbol, six.string_types) and benchmark is None:
-        base_config.benchmark = symbol
-    env.benchmark_portfolio = create_benchmark_portfolio()
 
     # adjust trade dates
     benchmark_symbol = base_config.benchmark
     origin_start_date, origin_end_date = base_config.start_date, base_config.end_date
     start, end = env.get_calendar_range(benchmark_symbol, frequency)
 
+    assert start <= origin_end_date and origin_start_date <= end, '回测时间范围不在数据范围 data范围{%s,%s}' % (start, end)
     base_config.start_date = max(start, origin_start_date)
     base_config.end_date = min(end, origin_end_date)
     base_config.trading_calendar = env.get_calendar(benchmark_symbol,
@@ -82,9 +66,9 @@ def run(config, kwargs):
         'after_trading': kwargs.after_trading,
     }
     env = Environment(config)
-    _adjust_env(env)
     mod_handler = ModHandler(env)
     mod_handler.start()
+    _adjust_env(env)
     try:
         context = Context()
         env.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))

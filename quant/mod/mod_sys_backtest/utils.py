@@ -5,8 +5,12 @@
 @time = 2017/10/24 14:25
 @annotation = ''
 """
-from quant import ACCOUNT_TYPE, CashTooLessException, Portfolio
+import six
+
+from quant.const import ACCOUNT_TYPE
 from quant.modle.base_position import Positions
+from quant.modle.portfolio import Portfolio
+from quant.util.exception import CashTooLessException
 
 
 def init_portfolio(env):
@@ -32,3 +36,22 @@ def init_portfolio(env):
 
     except Exception as e:
         raise e
+
+
+def create_benchmark_portfolio(env):
+    # TODO:benchmark 适配
+    base_config = env.config.base
+
+    # adjust benchmark
+    symbol = getattr(base_config, "symbol", None)
+    benchmark = getattr(base_config, "benchmark", None)
+    if isinstance(symbol, six.string_types) and benchmark is None:
+        base_config.benchmark = symbol
+
+    BenchmarkAccount = env.get_account(ACCOUNT_TYPE.BENCHMARK.name)
+    BenchmarkPosition = env.get_position(ACCOUNT_TYPE.BENCHMARK.name)
+    total_cash = sum(base_config.account.values())
+    accounts = {
+        ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(total_cash, Positions(BenchmarkPosition)),
+    }
+    return Portfolio(base_config.start_date, total_cash, accounts)

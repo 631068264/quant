@@ -5,16 +5,13 @@
 @time = 2017/10/21 23:39
 @annotation = ''
 """
-from quant import AbstractMod
+from quant.interface import AbstractMod
 from .validator.cash_validator import CashValidator
 from .validator.positon_validator import PositionValidator
-from .validator.price_validator import PriceValidator
 
 
 class RiskManagerMod(AbstractMod):
     def start(self, env, mod_config):
-        if mod_config.validate_price:
-            env.add_validator(PriceValidator(env))
         if mod_config.validate_cash:
             env.add_validator(CashValidator(env))
         if mod_config.validate_position:

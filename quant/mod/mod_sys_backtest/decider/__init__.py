@@ -5,7 +5,8 @@
 @time = 2017/10/25 14:23
 @annotation = ''
 """
-from quant import ACCOUNT_TYPE, Environment
+from quant.const import ACCOUNT_TYPE
+from quant.environment import Environment
 from .slippage import CryptoSlippage
 
 

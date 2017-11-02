@@ -7,15 +7,7 @@
 """
 import copy
 
-from quant import AttrDict
-
-
-def import_mod(mod_name):
-    try:
-        from importlib import import_module
-        return import_module(mod_name)
-    except Exception as e:
-        pass
+from quant.util import AttrDict, import_mod
 
 
 class ModHandler(object):
@@ -26,17 +18,14 @@ class ModHandler(object):
 
     def _set_env(self):
         config = self._env.config
-
-        if getattr(config, 'mod', None) is None:
-            return
         # filter mod
-        for mod_name, mod_config in config.mod:
+        for mod_name, mod_config in config.mod.__dict__.items():
             if not mod_config.enabled or mod_name not in SYSTEM_MOD_LIST:
                 continue
             self._mod_list.append((mod_name, mod_config))
         # update mod config
         for index, (mod_name, user_mod_config) in enumerate(self._mod_list):
-            lib_name = "model.mod.mod_" + mod_name
+            lib_name = "quant.mod.mod_" + mod_name
             try:
                 mod_module = import_mod(lib_name)
                 mod = mod_module.load_mod()

@@ -5,7 +5,8 @@
 @time = 2017/10/22 10:54
 @annotation = ''
 """
-from quant import AbstractValidator, ACCOUNT_TYPE, SIDE
+from quant.const import SIDE, ACCOUNT_TYPE
+from quant.interface import AbstractValidator
 
 
 class PositionValidator(AbstractValidator):

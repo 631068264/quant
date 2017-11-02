@@ -5,21 +5,11 @@
 @time = 2017/5/17 16:38
 @annotation = ''
 """
-import datetime
 
-from quant import AttrDict
-from quant.const import FREQUENCY, ACCOUNT_TYPE, RUN_TYPE
+from quant.const import FREQUENCY
 from quant.events import EventBus
+from quant.util.config import parse_config
 from quant.util.plot_store import PlotStore
-
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 class Environment(object):
@@ -125,23 +115,3 @@ class Environment(object):
 
     def add_plot(self, series_name, value):
         self.plot_store.add_plot(self.trading_dt, series_name, value)
-
-
-def parse_config(config):
-    def parse_date(config_date):
-        dt = datetime.datetime.strptime(config_date, "%Y-%m-%d")
-        return dt.replace(microsecond=0)
-
-    config = AttrDict(config)
-    base_config = config.base
-
-    base_config.start_date = parse_date(base_config.start_date)
-    base_config.end_date = parse_date(base_config.end_date)
-    assert base_config.start_date < base_config.end_date
-    assert base_config.frequency in FREQUENCY.ALL
-    assert set(base_config.account) <= set(ACCOUNT_TYPE.__members__.values())
-    assert base_config.run_type in RUN_TYPE.__members__.values()
-
-    config.base = base_config
-
-    return config

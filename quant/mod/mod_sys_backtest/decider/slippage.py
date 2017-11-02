@@ -9,7 +9,7 @@ import abc
 
 from six import with_metaclass
 
-from quant import SIDE
+from quant.const import SIDE
 
 
 class BaseSlippage(with_metaclass(abc.ABCMeta)):

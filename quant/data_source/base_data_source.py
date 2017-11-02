@@ -5,7 +5,7 @@
 @time = 2017/5/18 10:14
 @annotation = ''
 """
-from quant.data_source import get_all_bar, get_trade_date
+from quant.data_source.bar_store import get_all_bar, get_trade_date
 from quant.interface import AbstractDataSource
 
 

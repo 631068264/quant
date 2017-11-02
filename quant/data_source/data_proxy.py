@@ -8,7 +8,7 @@
 import pandas as pd
 import six
 
-from quant.data_source import INSTRUMENT_DICT
+from quant.data_source.bar_store import INSTRUMENT_DICT
 from quant.modle.bar import Bar
 
 valid_fields = {"open", "high", "low", "close", "volume", "datetime"}

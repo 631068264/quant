@@ -6,6 +6,7 @@
 @annotation = ''
 """
 from quant.const import ACCOUNT_TYPE, SIDE
+from quant.data_source.bar_store import INSTRUMENT_DICT
 from quant.modle.base_position import BasePosition
 
 
@@ -15,6 +16,7 @@ class CryptoPosition(BasePosition):
         self.amount = 0  # 持币数量
         self.frozen_amount = 0  # 冻结量
         self.buy_price = 0  # 买入价
+        self._instrument = INSTRUMENT_DICT
 
     def apply_trade(self, trade):
         if trade.side == SIDE.BUY:
@@ -45,7 +47,7 @@ class CryptoPosition(BasePosition):
     def market_value(self):
         """市价"""
         # 全部卖出手续费
-        return self.amount * self.last_price * (1 - self.symbol.fee)
+        return self.amount * self.last_price * (1 - self._instrument[self.symbol].fee)
 
     @property
     def type(self):

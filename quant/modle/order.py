@@ -6,10 +6,10 @@
 @annotation = ''
 """
 import time
-
-from quant import id_gen, repr_print
+from quant.util import repr_print
 from quant.const import ORDER_STATUS
 from quant.environment import Environment
+from quant.util import id_gen
 
 
 class Order(object):

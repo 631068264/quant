@@ -10,15 +10,15 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from quant import safe_float, Portfolio, const
+from quant import const
 from quant.const import ACCOUNT_TYPE
 from quant.events import EVENT
 from quant.interface import AbstractMod
-from quant.modle.trade import Trade
+from quant.util import safe_float
 from .metrics import Metrics
 
 
-def _wrap_portfolio(dt, portfolio: Portfolio):
+def _wrap_portfolio(dt, portfolio):
     return {
         "datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
         "cash": safe_float(portfolio.cash),
@@ -40,7 +40,7 @@ def _wrap_account(dt, account):
     }
 
 
-def _wrap_trade(trade: Trade):
+def _wrap_trade(trade):
     return {
         'datetime': trade.create_dt.strftime("%Y-%m-%d %H:%M:%S"),
         'trading_datetime': trade.trade_dt.strftime("%Y-%m-%d %H:%M:%S"),
