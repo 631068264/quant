@@ -24,7 +24,7 @@ class AccountMod(AbstractMod):
         env.set_position(ACCOUNT_TYPE.CRYPTO.name, CryptoPosition)
         env.set_position(ACCOUNT_TYPE.BENCHMARK.name, CryptoPosition)
 
-        if ACCOUNT_TYPE.CRYPTO.name in env.config.base.account:
+        if ACCOUNT_TYPE.CRYPTO.name in env.config.base.accounts:
             # 注入股票API
             for export_name in api_crypto.__all__:
                 export_as_api(getattr(api_crypto, export_name))

@@ -94,9 +94,6 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
     label_height, value_height = 0.8, 0.6
     label_height2, value_height2 = 0.35, 0.15
 
-    # def _(txt):
-    #     return gettext(txt) if use_chinese_fonts else txt
-
     fig_data = [
         (0.00, label_height, value_height, "收益率", "{0:.3%}".format(summary["total_returns"]), red, black),
         (0.15, label_height, value_height, "年化收益率",
@@ -107,17 +104,17 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
         (0.15, label_height2, value_height2, "基准年化收益率",
          "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)), blue, black),
 
-        (0.30, label_height, value_height, "Alpha", "{0:.4}".format(summary["alpha"]), black, black),
-        (0.40, label_height, value_height, "Beta", "{0:.4}".format(summary["beta"]), black, black),
-        (0.55, label_height, value_height, "Sharpe", "{0:.4}".format(summary["sharpe"]), black, black),
-        (0.70, label_height, value_height, "Sortino", "{0:.4}".format(summary["sortino"]), black, black),
-        (0.85, label_height, value_height, "Information Ratio", "{0:.4}".format(summary["information_ratio"]), black,
+        (0.30, label_height, value_height, "Alpha", "{0:.4f}".format(summary["alpha"]), black, black),
+        (0.40, label_height, value_height, "Beta", "{0:.4f}".format(summary["beta"]), black, black),
+        (0.55, label_height, value_height, "Sharpe", "{0:.4f}".format(summary["sharpe"]), black, black),
+        (0.70, label_height, value_height, "Sortino", "{0:.4f}".format(summary["sortino"]), black, black),
+        (0.85, label_height, value_height, "Information Ratio", "{0:.4f}".format(summary["information_ratio"]), black,
          black),
-        (0.30, label_height2, value_height2, "Volatility", "{0:.4}".format(summary["volatility"]), black, black),
+        (0.30, label_height2, value_height2, "Volatility", "{0:.4f}".format(summary["volatility"]), black, black),
         (0.40, label_height2, value_height2, "最大回撤", "{0:.3%}".format(summary["max_drawdown"]), black, black),
-        (0.55, label_height2, value_height2, "Tracking Error", "{0:.4}".format(summary["tracking_error"]), black,
+        (0.55, label_height2, value_height2, "Tracking Error", "{0:.4f}".format(summary["tracking_error"]), black,
          black),
-        (0.70, label_height2, value_height2, "Downside Risk", "{0:.4}".format(summary["downside_risk"]), black, black),
+        (0.70, label_height2, value_height2, "Downside Risk", "{0:.4f}".format(summary["downside_risk"]), black, black),
     ]
 
     ax = plt.subplot(gs[:3, :-1])

@@ -175,7 +175,7 @@ class AnalyserMod(AbstractMod):
             result_dict['benchmark_portfolio'] = benchmark_portfolios
 
         if self._env.plot_store is not None:
-            plots = self._env.plot_store.get_plots()
+            plots = self._env.get_plot_store().get_plots()
             plots_items = defaultdict(dict)
             for series_name, value_dict in plots.items():
                 for date, value in value_dict.items():

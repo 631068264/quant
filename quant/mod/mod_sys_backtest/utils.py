@@ -18,22 +18,21 @@ def init_portfolio(env):
     base_config = env.config.base
     start_date = base_config.start_date
     total_cash = 0
+
     try:
-        for account_type, starting_cash in base_config.account.items():
+        for account_type, starting_cash in base_config.accounts.items():
             if starting_cash <= 0:
                 raise CashTooLessException("[starting_cash]%s <= 0" % starting_cash)
-            if account_type == ACCOUNT_TYPE.CRYPTO.name:
-                CryptoAccount = env.get_account(account_type)
-                CryptoPosition = env.get_position(account_type)
-                total_cash += starting_cash
-                accounts[account_type] = CryptoAccount(starting_cash, Positions(CryptoPosition))
+            if account_type not in ACCOUNT_TYPE.__members__.keys():
+                raise RuntimeError('Not allow ACCOUNT_TYPE %s' % (account_type,))
 
-            elif account_type == ACCOUNT_TYPE.FUTURE.name:
-                raise NotImplementedError
-            else:
-                raise NotImplementedError
+            account_model = env.get_account(account_type)
+            position_model = env.get_position(account_type)
+            account = account_model(starting_cash, Positions(position_model))
+            total_cash += account.total_value
+            accounts[account_type] = account
+
         return Portfolio(start_date, total_cash, accounts)
-
     except Exception as e:
         raise e
 
@@ -50,7 +49,7 @@ def create_benchmark_portfolio(env):
 
     BenchmarkAccount = env.get_account(ACCOUNT_TYPE.BENCHMARK.name)
     BenchmarkPosition = env.get_position(ACCOUNT_TYPE.BENCHMARK.name)
-    total_cash = sum(base_config.account.values())
+    total_cash = sum(base_config.accounts.values())
     accounts = {
         ACCOUNT_TYPE.BENCHMARK.name: BenchmarkAccount(total_cash, Positions(BenchmarkPosition)),
     }

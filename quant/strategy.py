@@ -12,7 +12,6 @@ from quant.events import EVENT, Event
 class Strategy(object):
     def __init__(self, event_bus, scope, ucontext):
         self._user_context = ucontext
-        self._current_universe = set()
 
         self._init = scope.get('init', None)
         self._handle_bar = scope.get('handle_bar', None)

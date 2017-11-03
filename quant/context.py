@@ -19,7 +19,7 @@ class RunInfo(object):
         self.start_date = base_config.start_date
         self.end_date = base_config.end_date
         self.frequency = base_config.frequency
-        self.crypto_starting_cash = base_config.account.get(ACCOUNT_TYPE.CRYPTO.name, 0)
+        self.crypto_starting_cash = base_config.accounts.get(ACCOUNT_TYPE.CRYPTO.name, 0)
         self.benchmark = base_config.benchmark
         self.run_type = base_config.run_type
 

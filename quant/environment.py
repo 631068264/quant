@@ -9,7 +9,6 @@
 from quant.const import FREQUENCY
 from quant.events import EventBus
 from quant.util.config import parse_config
-from quant.util.plot_store import PlotStore
 
 
 class Environment(object):
@@ -32,7 +31,7 @@ class Environment(object):
         # TODO:dt之间区别
         self.calendar_dt = self.config.base.start_date
         self.trading_dt = self.config.base.start_date
-        self.plot_store = PlotStore()
+        self.plot_store = None
         self.bar_dict = None
         # model dict
         self._account_dict = {}
@@ -114,4 +113,10 @@ class Environment(object):
         return self.data_proxy.get_calendar_range(benchmark_symbol, frequency)
 
     def add_plot(self, series_name, value):
-        self.plot_store.add_plot(self.trading_dt, series_name, value)
+        self.get_plot_store().add_plot(self.trading_dt, series_name, value)
+
+    def get_plot_store(self):
+        if self.plot_store is None:
+            from quant.util.plot_store import PlotStore
+            self.plot_store = PlotStore()
+        return self.plot_store

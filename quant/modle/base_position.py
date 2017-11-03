@@ -13,11 +13,21 @@ class Positions(dict):
     def __init__(self, position_cls):
         super(Positions, self).__init__()
         self._position_cls = position_cls
+        self._cache = {}
 
-    def __missing__(self, key):
-        if key not in self:
-            self[key] = self._position_cls(key)
-        return self[key]
+    def __getitem__(self, key):
+        if key not in self._cache:
+            self._cache[key] = self._position_cls(key)
+        return self._cache[key]
+
+    def __delitem__(self, key):
+        del self._cache[key]
+
+    def __contains__(self, key):
+        return key in self._cache
+
+    def __len__(self):
+        return len(self._cache)
 
 
 class BasePosition(object):

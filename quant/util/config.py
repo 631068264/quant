@@ -78,7 +78,7 @@ def parse_config(config):
 
     base_config.start_date = parse_date(base_config.start_date)
     base_config.end_date = parse_date(base_config.end_date)
-    base_config.account = parse_account(base_config.account)
+    base_config.accounts = parse_account(base_config.accounts)
     assert base_config.start_date < base_config.end_date
     assert base_config.run_type in RUN_TYPE.__members__.values()
     assert base_config.frequency in FREQUENCY.ALL
