@@ -7,5 +7,5 @@ mod:
     enabled: true
   sys_risk:
     enabled: true
-  sys_backtest:
+  sys_run:
     enabled: true

@@ -5,25 +5,25 @@
 @time = 2017/5/27 16:00
 @annotation = ''
 """
-import pandas as pd
 
 
 def generate_plot(result_dict, show_windows=True, savefile=None):
     import os
-    from matplotlib import rcParams, gridspec, ticker, pyplot as plt
+    from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
     from matplotlib.font_manager import findfont, FontProperties
     import numpy as np
 
     rcParams['font.family'] = 'sans-serif'
-    rcParams['font.sans-serif'] = ['Microsoft Yahei',
-                                   'Heiti SC',
-                                   'Heiti TC',
-                                   'STHeiti',
-                                   'WenQuanYi Zen Hei',
-                                   'WenQuanYi Micro Hei',
-                                   "文泉驿微米黑",
-                                   'SimHei',
-                                   ] + rcParams['font.sans-serif']
+    rcParams['font.sans-serif'] = [
+                                      u'Microsoft Yahei',
+                                      u'Heiti SC',
+                                      u'Heiti TC',
+                                      u'STHeiti',
+                                      u'WenQuanYi Zen Hei',
+                                      u'WenQuanYi Micro Hei',
+                                      u"文泉驿微米黑",
+                                      u'SimHei',
+                                  ] + rcParams['font.sans-serif']
     rcParams['axes.unicode_minus'] = False
 
     use_chinese_fonts = True
@@ -33,12 +33,12 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
 
     summary = result_dict["summary"]
 
-    title = "策略分析"
+    title = u"策略分析"
 
     portfolio = result_dict["portfolio"]
     benchmark_portfolio = result_dict.get("benchmark_portfolio")
 
-    index = portfolio.index = pd.to_datetime(portfolio.index)
+    index = portfolio.index
 
     # maxdrawdown
     portfolio_value = portfolio.unit_net_value * portfolio.start_cash
@@ -78,7 +78,7 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
     max_height = 10 + plots_area_size
     gs = gridspec.GridSpec(max_height, 8)
 
-    # draw logo
+    # # draw logo
     # ax = plt.subplot(gs[:3, -1:])
     # ax.axis("off")
     # filename = os.path.join(os.path.dirname(os.path.realpath(rqalpha.__file__)), "resource")
@@ -95,26 +95,33 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
     label_height2, value_height2 = 0.35, 0.15
 
     fig_data = [
-        (0.00, label_height, value_height, "收益率", "{0:.3%}".format(summary["total_returns"]), red, black),
-        (0.15, label_height, value_height, "年化收益率",
-         "{0:.3%}".format(summary["annualized_returns"]), red, black),
-
-        (0.00, label_height2, value_height2, "基准收益率",
-         "{0:.3%}".format(summary.get("benchmark_total_returns", 0)), blue, black),
-        (0.15, label_height2, value_height2, "基准年化收益率",
-         "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)), blue, black),
-
-        (0.30, label_height, value_height, "Alpha", "{0:.4f}".format(summary["alpha"]), black, black),
-        (0.40, label_height, value_height, "Beta", "{0:.4f}".format(summary["beta"]), black, black),
-        (0.55, label_height, value_height, "Sharpe", "{0:.4f}".format(summary["sharpe"]), black, black),
-        (0.70, label_height, value_height, "Sortino", "{0:.4f}".format(summary["sortino"]), black, black),
-        (0.85, label_height, value_height, "Information Ratio", "{0:.4f}".format(summary["information_ratio"]), black,
+        (0.00, label_height, value_height, u"收益率", "{0:.3%}".format(summary["total_returns"]), red, black),
+        (0.15, label_height, value_height, u"年化收益率", "{0:.3%}".format(summary["annualized_returns"]), red,
          black),
-        (0.30, label_height2, value_height2, "Volatility", "{0:.4f}".format(summary["volatility"]), black, black),
-        (0.40, label_height2, value_height2, "最大回撤", "{0:.3%}".format(summary["max_drawdown"]), black, black),
-        (0.55, label_height2, value_height2, "Tracking Error", "{0:.4f}".format(summary["tracking_error"]), black,
+        (0.00, label_height2, value_height2, u"基准收益率",
+         "{0:.3%}".format(summary.get("benchmark_total_returns", 0)), blue,
          black),
-        (0.70, label_height2, value_height2, "Downside Risk", "{0:.4f}".format(summary["downside_risk"]), black, black),
+        (0.15, label_height2, value_height2, u"基准年化收益率",
+         "{0:.3%}".format(summary.get("benchmark_annualized_returns", 0)),
+         blue, black),
+
+        (0.30, label_height, value_height, u"Alpha", "{0:.4f}".format(summary["alpha"]), black, black),
+        (0.40, label_height, value_height, u"Beta", "{0:.4f}".format(summary["beta"]), black, black),
+        (0.55, label_height, value_height, u"Sharpe", "{0:.4f}".format(summary["sharpe"]), black, black),
+        (0.70, label_height, value_height, u"Sortino", "{0:.4f}".format(summary["sortino"]), black, black),
+        (
+            0.85, label_height, value_height, u"Information Ratio", "{0:.4f}".format(summary["information_ratio"]),
+            black,
+            black),
+
+        (0.30, label_height2, value_height2, u"Volatility", "{0:.4f}".format(summary["volatility"]), black, black),
+        (
+            0.40, label_height2, value_height2, u"MaxDrawdown", "{0:.3%}".format(summary["max_drawdown"]), black,
+            black),
+        (0.55, label_height2, value_height2, u"Tracking Error", "{0:.4f}".format(summary["tracking_error"]), black,
+         black),
+        (0.70, label_height2, value_height2, u"Downside Risk", "{0:.4f}".format(summary["downside_risk"]), black,
+         black),
     ]
 
     ax = plt.subplot(gs[:3, :-1])
@@ -134,16 +141,18 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
     ax.get_yaxis().set_minor_locator(ticker.AutoMinorLocator())
     ax.grid(b=True, which='minor', linewidth=.2)
     ax.grid(b=True, which='major', linewidth=1)
+
     # plot two lines
-    ax.plot(portfolio["unit_net_value"], label="strategy", alpha=1, linewidth=2, color=red)
+    ax.plot(portfolio["unit_net_value"] - 1.0, label=u"strategy", alpha=1, linewidth=2, color=red)
     if benchmark_portfolio is not None:
-        ax.plot(benchmark_portfolio["unit_net_value"], label="benchmark", alpha=1, linewidth=2, color=blue)
+        ax.plot(benchmark_portfolio["unit_net_value"] - 1.0, label=u"benchmark", alpha=1, linewidth=2, color=blue)
 
     # plot MaxDD/MaxDDD
-    ax.plot([index[max_dd_end], index[max_dd_start]], [rt[max_dd_end], rt[max_dd_start]],
-            'v', color='Green', markersize=8, alpha=.7, label="MaxDrawdown")
+    ax.plot([index[max_dd_end], index[max_dd_start]], [rt[max_dd_end] - 1.0, rt[max_dd_start] - 1.0],
+            'v', color='Green', markersize=8, alpha=.7, label=u"MaxDrawdown")
     ax.plot([index[max_ddd_start_day], index[max_ddd_end_day]],
-            [rt[max_ddd_start_day], rt[max_ddd_end_day]], 'D', color='Blue', markersize=8, alpha=.7, label="MaxDDD")
+            [rt[max_ddd_start_day] - 1.0, rt[max_ddd_end_day] - 1.0], 'D', color='Blue', markersize=8, alpha=.7,
+            label=u"MaxDDD")
 
     # place legend
     leg = plt.legend(loc="best")

@@ -50,7 +50,7 @@ class CryptoAccount(BaseAccount):
         if event.account != self:
             return
         order = event.order
-        position = self.positions[order.symbol]
+        position = self.positions.get_or_create(order.symbol)
         position.on_order_cancel(order)
         if order.side == SIDE.BUY:
             self.frozen_cash -= order.price * order.amount
@@ -59,7 +59,7 @@ class CryptoAccount(BaseAccount):
         if event.account != self:
             return
         trade = event.trade
-        position = self.positions[trade.symbol]
+        position = self.positions.get_or_create(trade.symbol)
         position.apply_trade(trade)
 
         self.trade_cost += abs(trade.price - trade.frozen_price) + trade.amount * trade.price * trade.fee

@@ -58,5 +58,5 @@ SYSTEM_MOD_LIST = [
     "sys_analyser",
     "sys_risk",
     "sys_progress",
-    "sys_backtest",
+    "sys_run",
 ]

@@ -26,7 +26,7 @@ class Portfolio(object):
         # 初始资金
         self.start_cash = start_cash
         # 交易前总权益
-        self.static_total_value = 0
+        self.static_unit_net_value = 1
         self.register_event()
 
     def register_event(self):
@@ -34,7 +34,7 @@ class Portfolio(object):
         event_bus.prepend_listener(EVENT.PRE_BEFORE_TRADING, self._pre_before_trading)
 
     def _pre_before_trading(self, event):
-        self.static_total_value = self.total_value
+        self.static_unit_net_value = self.unit_net_value
 
     @property
     def crypto_account(self):
@@ -54,14 +54,14 @@ class Portfolio(object):
     @property
     def cash(self):
         """
-        [float] 可用资金
+        可用资金
         """
         return sum(account.cash for account in self.accounts.values())
 
     @property
     def total_market_value(self):
         """
-        [float] 市值 sum(拥有的货币数量 * 对应的最新价)
+        总市值 sum(拥有的货币数量 * 对应的最新价)
         """
         return sum(account.total_market_value for account in self.accounts.values())
 
@@ -80,21 +80,21 @@ class Portfolio(object):
     @property
     def current_pnl(self):
         """交易后-交易前"""
-        return self.total_value - self.static_total_value
+        return self.total_value - self.static_unit_net_value * self.start_cash
 
     @property
     def current_pnl_returns(self):
-        return 0 if self.static_total_value == 0 else self.current_pnl / self.static_total_value
+        return 0 if self.static_unit_net_value == 0 else self.unit_net_value / self.static_unit_net_value - 1
 
     @property
     def pnl(self):
         """总收益"""
-        return self.static_total_value - self.start_cash
+        return (self.unit_net_value - 1) * self.start_cash
 
     @property
     def pnl_returns(self):
         """总收益率"""
-        return self.pnl / self.start_cash
+        return self.unit_net_value - 1
 
     @property
     def annualized_returns(self):
@@ -102,8 +102,7 @@ class Portfolio(object):
         年化收益率
         """
         current_date = Environment.get_instance().trading_dt.date()
-        rate = self.static_total_value / self.start_cash
-        return rate ** (DAYS_A_YEAR / float((current_date - self.start_date.date()).days + 1)) - 1
+        return self.unit_net_value ** (DAYS_A_YEAR / float((current_date - self.start_date.date()).days + 1)) - 1
 
     @property
     def unit_net_value(self):

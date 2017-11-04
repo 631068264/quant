@@ -62,8 +62,6 @@ def get_all_instrument():
 # TODO:持久化
 def parse_config(config):
     def parse_date(config_date):
-        # dt = datetime.datetime.strptime(config_date, "%Y-%m-%d")
-        # return dt.replace(microsecond=0)
         return pd.Timestamp(config_date)
 
     def parse_account(account):

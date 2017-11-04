@@ -25,7 +25,7 @@ def _wrap_portfolio(dt, portfolio):
         "total_value": safe_float(portfolio.total_value),
         "market_value": safe_float(portfolio.total_market_value),
         "start_cash": safe_float(portfolio.start_cash),
-        "static_total_value": safe_float(portfolio.static_total_value),
+        "static_unit_net_value": safe_float(portfolio.static_unit_net_value),
         "unit_net_value": safe_float(portfolio.unit_net_value, 6),
     }
 
@@ -162,6 +162,7 @@ class AnalyserMod(AbstractMod):
             trades = trades.set_index('datetime')
 
         df = pd.DataFrame(self._total_portfolios)
+        df['datetime'] = pd.to_datetime(df['datetime'])
         total_portfolios = df.set_index('datetime').sort_index()
         result_dict = {
             'summary': summary,
