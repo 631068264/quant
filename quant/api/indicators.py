@@ -18,6 +18,22 @@ def export_as_api(func):
 
 
 @export_as_api
+def CROSS(ma1, ma2):
+    """ma1 上穿 ma2"""
+    return ma2[-2] > ma1[-2] and ma2[-1] < ma1[-1]
+
+
+@export_as_api
+def CROSS_LINE(l1, l2):
+    """l1 上穿 l2"""
+    if isinstance(l1, int):
+        l1 = np.linspace(l1, l1, 2)
+    if isinstance(l2, int):
+        l2 = np.linspace(l2, l2, 2)
+    return l2[-2] > l1[-2] and l2[-1] < l1[-1]
+
+
+@export_as_api
 def MA(close, period, matype=MA_Type.SMA):
     return ta.MA(close, timeperiod=period, matype=matype)
 
@@ -51,8 +67,8 @@ def MACD(close, fast_period=12, slow_period=26, signal_period=9):
 
 @export_as_api
 def KDJ(high, low, close, N=9, M1=3, M2=3):
-    llv = _lv(low, N)
-    hhv = _hv(high, N)
+    llv = LLV(low, N)
+    hhv = HHV(high, N)
     rsv = ((close - llv) / (hhv - llv)) * 100
     k = EMA(rsv, M1 * 2 - 1)
     d = EMA(k, M2 * 2 - 1)
@@ -69,9 +85,9 @@ def _rolling_window(a, window):
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
 
 
-def _lv(a, window):
-    return np.min(_rolling_window(a, window), 1)
+def LLV(low, window):
+    return np.min(_rolling_window(low, window), 1)
 
 
-def _hv(a, window):
-    return np.max(_rolling_window(a, window), 1)
+def HHV(high, window):
+    return np.max(_rolling_window(high, window), 1)

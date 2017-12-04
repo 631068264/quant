@@ -7,14 +7,14 @@
 """
 from __future__ import division
 
-from decimal import Decimal, getcontext
+from decimal import getcontext
 
 from quant.const import ORDER_TYPE, SIDE
 from quant.environment import Environment
 from quant.modle.order import Order
 
 __all__ = []
-getcontext().prec = 10
+getcontext().prec = 8
 
 
 def export_as_api(func):
@@ -23,6 +23,7 @@ def export_as_api(func):
 
 
 def _order(symbol, price=None, amount=None, order_type=None):
+    # TODO:处理除不尽的
     order = None
     env = Environment.get_instance()
     # 限价单
@@ -38,7 +39,7 @@ def _order(symbol, price=None, amount=None, order_type=None):
         last_price = env.get_last_price(symbol)
         if price is not None and price > 0:
             side = SIDE.BUY
-            order = Order.create_order(symbol, last_price, Decimal(price) / Decimal(last_price), side, order_type)
+            order = Order.create_order(symbol, last_price, price / last_price, side, order_type)
         elif amount is not None and amount < 0:
             side = SIDE.SELL
             order = Order.create_order(symbol, last_price, abs(amount), side, order_type)
@@ -47,15 +48,31 @@ def _order(symbol, price=None, amount=None, order_type=None):
 
 
 @export_as_api
-def all_in(symbol):
+def buy(symbol=None, when=True):
+    if when:
+        all_in(symbol)
+
+
+@export_as_api
+def sell(symbol=None, when=True):
+    if when:
+        all_out(symbol)
+
+
+@export_as_api
+def all_in(symbol=None):
+    """全仓买入"""
     env = Environment.get_instance()
+    symbol = symbol or env.config.base.symbol
     account = env.get_account_by_symbol(symbol)
     return market_buy(symbol, price=account.cash)
 
 
 @export_as_api
-def all_out(symbol):
+def all_out(symbol=None):
+    """全仓卖出"""
     env = Environment.get_instance()
+    symbol = symbol or env.config.base.symbol
     account = env.get_account_by_symbol(symbol)
     position = account.positions[symbol]
     return market_sell(symbol, amount=position.amount)

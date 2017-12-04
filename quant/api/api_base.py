@@ -54,7 +54,7 @@ def cancel_order(order):
 
 
 @export_as_api
-def history(symbol, bar_count, frequency=None, field=None):
+def history(symbol=None, bar_count=1, frequency=None, field=None):
     """
     返回K线行情
     =========================   ===================================================

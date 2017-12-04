@@ -94,10 +94,17 @@ class Environment(object):
         return self.portfolio.accounts[account_type]
 
     def history(self, symbol, frequency, bar_count, dt, fields):
-        if frequency is None:
-            frequency = self.config.base.frequency
-        if frequency not in FREQUENCY.ALL:
-            return None
+
+        def _check_frequency():
+            if frequency and frequency not in FREQUENCY.ALL:
+                raise RuntimeError('{} not in data frequency'.format(frequency))
+            return frequency or self.config.base.frequency
+
+        def _check_symbol():
+            return symbol or self.config.base.symbol
+
+        frequency = _check_frequency()
+        symbol = _check_symbol()
         return self.data_proxy.history(symbol, frequency, bar_count, dt, fields)
 
     def get_previous_date(self, symbol, frequency, dt, n=1):

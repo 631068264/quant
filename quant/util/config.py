@@ -51,7 +51,7 @@ def deep_update(from_dict, to_dict):
 
 def get_all_instrument():
     instrument_info = load_instrument_conf()
-    instruments = load_instrument_conf()
+    instruments = {}
     for exchange, infos in instrument_info.items():
         for info in infos:
             instrument = Instrument(exchange, **info)

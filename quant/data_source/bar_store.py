@@ -69,7 +69,7 @@ def update_bundle():
         #     .order_by(F.date, desc=True).limit(0, 20000).select("*")
         for frequency in const.FREQUENCY.ALL:
             data = QS(db_kline).table(getattr(T, instrument.bar_name(frequency=frequency))) \
-                .order_by(F.date, desc=True).limit(0, 20000).select("*")
+                .order_by(F.date, desc=True).limit(0, 20000).select("date,open,high,low,close,volume")
             df = pd.DataFrame(data).sort_values(by="date")
             df = fill_df(df)
             # if frequency != const.FREQUENCY.ONE_MINUTE:

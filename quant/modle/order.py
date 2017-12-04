@@ -6,10 +6,11 @@
 @annotation = ''
 """
 import time
-from quant.util import repr_print
+
 from quant.const import ORDER_STATUS
 from quant.environment import Environment
 from quant.util import id_gen
+from quant.util import repr_print
 
 
 class Order(object):
@@ -34,6 +35,7 @@ class Order(object):
     def create_order(cls, symbol, price=0.,
                      amount=0., side=None, style=None):
         env = Environment.get_instance()
+        symbol = symbol or env.config.base.symbol
         instrument = Environment.get_instance().get_instrument(symbol)
         order = cls()
         order.order_id = next(id_gen(int(time.time())))
