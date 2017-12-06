@@ -7,7 +7,6 @@
 """
 from quant.const import ACCOUNT_TYPE, SIDE
 from quant.data_source.bar_store import INSTRUMENT_DICT
-from quant.environment import Environment
 from quant.modle.base_position import BasePosition
 
 
@@ -42,15 +41,13 @@ class CryptoPosition(BasePosition):
     @property
     def earning(self):
         """持仓收益"""
-        return self.amount * (Environment.get_instance().get_last_price(self.symbol) - self.buy_price)
+        return self.amount * (self.last_price - self.buy_price)
 
     @property
     def market_value(self):
         """市价"""
         # 全部卖出手续费
-        return self.amount * \
-               Environment.get_instance().get_last_price(self.symbol) * \
-               (1 - self._instrument[self.symbol].fee)
+        return self.amount * self.last_price * (1 - self._instrument[self.symbol].fee)
 
     @property
     def type(self):

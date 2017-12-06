@@ -24,7 +24,7 @@ class BenchmarkAccount(CryptoAccount):
         if len(self.positions) == 0:
             instrument = Environment.get_instance().get_instrument(self.benchmark)
             price = event.bar_dict[self.benchmark].close
-            position = self.positions.get_or_create(self.benchmark)
+            position = self.positions[self.benchmark]
             amount = self.total_cash / price
             position.amount = amount * (1 - instrument.fee)
             position.buy_price = price

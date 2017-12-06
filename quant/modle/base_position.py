@@ -5,6 +5,7 @@
 @time = 2017/5/16 09:19
 @annotation = ''
 """
+from quant.environment import Environment
 from quant.util import repr_print
 
 
@@ -28,12 +29,20 @@ class Positions(dict):
     def __len__(self):
         return len(self._cache)
 
+    def values(self):
+        return self._cache.values()
+
+    def items(self):
+        return self._cache.items()
+
 
 class BasePosition(object):
     """仓位"""
+    NaN = float('NaN')
 
     def __init__(self, symbol):
         self.symbol = symbol
+        self._last_price = self.NaN
 
     @property
     def market_value(self):
@@ -46,15 +55,11 @@ class BasePosition(object):
     def type(self):
         raise NotImplementedError
 
-    # @property
-    # def last_price(self):
-    #     """最新价"""
-    #     return (self._last_price if self._last_price == self._last_price else
-    #             Environment.get_instance().get_last_price(self.symbol))
-    #
-    # def update_last_price(self):
-    #     price = Environment.get_instance().get_last_price(self.symbol)
-    #     self._last_price = price
+    @property
+    def last_price(self):
+        """最新价"""
+        return (self._last_price if self._last_price == self._last_price else
+                Environment.get_instance().get_last_price(self.symbol))
 
     def apply_trade(self, trade):
         raise NotImplementedError
