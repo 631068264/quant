@@ -84,7 +84,7 @@ class Environment(object):
         return self.bar_dict[symbol]
 
     def get_last_price(self, symbol):
-        return self.bar_dict[symbol].last
+        return float(self.bar_dict[symbol].last)
 
     def get_instrument(self, symbol):
         return self.data_proxy.instrument(symbol)

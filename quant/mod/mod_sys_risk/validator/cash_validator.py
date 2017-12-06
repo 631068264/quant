@@ -5,6 +5,7 @@
 @time = 2017/10/23 22:38
 @annotation = ''
 """
+
 from quant.const import SIDE, ACCOUNT_TYPE
 from quant.interface import AbstractValidator
 
@@ -18,7 +19,8 @@ class CashValidator(AbstractValidator):
             return True
         # 检查可用资金是否充足
         cost_money = order.price * order.amount
-        if cost_money <= account.cash:
+
+        if round(cost_money, 8) <= round(account.cash, 8):
             return True
 
         order.reject(

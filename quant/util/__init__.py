@@ -19,7 +19,7 @@ def id_gen(start=1):
         i += 1
 
 
-def safe_float(value, ndigits=3):
+def safe_float(value, ndigits=8):
     if isinstance(value, (float, np.float64, np.float32, np.float16, np.float)):
         return round(value, ndigits)
 

@@ -53,7 +53,7 @@ class CryptoAccount(BaseAccount):
         position = self.positions.get_or_create(order.symbol)
         position.on_order_cancel(order)
         if order.side == SIDE.BUY:
-            self.frozen_cash -= order.price * order.amount
+            self.frozen_cash -= order.price * order.unfilled_amount
 
     def _on_trade(self, event):
         if event.account != self:
@@ -71,6 +71,11 @@ class CryptoAccount(BaseAccount):
 
     def _on_settlement(self, event):
         for position in list(self.positions.values()):
-            if position.amount != 0:
-                self.total_cash += position.market_value
+            # if position.amount != 0:
+            #     self.total_cash += position.market_value
             self.positions.pop(position.symbol, None)
+        self.trade_cost = 0
+
+    # def _update_last_price(self, event):
+    #     for position in self.positions.values():
+    #         position.update_last_price()

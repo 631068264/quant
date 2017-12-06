@@ -5,7 +5,6 @@
 @time = 2017/5/16 09:19
 @annotation = ''
 """
-from quant.environment import Environment
 from quant.util import repr_print
 
 
@@ -13,17 +12,21 @@ class Positions(dict):
     def __init__(self, position_cls):
         super(Positions, self).__init__()
         self._position_cls = position_cls
-        self._cached_positions = {}
+        self._cache = {}
 
-    def __missing__(self, key):
-        if key not in self._cached_positions:
-            self._cached_positions[key] = self._position_cls(key)
-        return self._cached_positions[key]
+    def __getitem__(self, key):
+        if key not in self._cache:
+            self._cache[key] = self._position_cls(key)
+        return self._cache[key]
 
-    def get_or_create(self, key):
-        if key not in self:
-            self[key] = self._position_cls(key)
-        return self[key]
+    def __delitem__(self, key):
+        del self._cache[key]
+
+    def __contains__(self, key):
+        return key in self._cache
+
+    def __len__(self):
+        return len(self._cache)
 
 
 class BasePosition(object):
@@ -43,10 +46,15 @@ class BasePosition(object):
     def type(self):
         raise NotImplementedError
 
-    @property
-    def last_price(self):
-        """最新价"""
-        return Environment.get_instance().get_last_price(self.symbol)
+    # @property
+    # def last_price(self):
+    #     """最新价"""
+    #     return (self._last_price if self._last_price == self._last_price else
+    #             Environment.get_instance().get_last_price(self.symbol))
+    #
+    # def update_last_price(self):
+    #     price = Environment.get_instance().get_last_price(self.symbol)
+    #     self._last_price = price
 
     def apply_trade(self, trade):
         raise NotImplementedError

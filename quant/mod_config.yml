@@ -2,6 +2,7 @@ mod:
   sys_account:
     enabled: true
   sys_analyser:
+    plot: true
     enabled: true
   sys_progress:
     enabled: true
