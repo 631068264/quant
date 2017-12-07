@@ -11,6 +11,7 @@ __config__ = {
     "plot": True,
     "plot_save_path": None,
     "pickle_path": None,
+    'echart_plot': False,
 }
 
 

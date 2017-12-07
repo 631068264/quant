@@ -9,7 +9,7 @@
 
 def generate_plot(result_dict, show_windows=True, savefile=None):
     import os
-    from matplotlib import rcParams, gridspec, ticker, image as mpimg, pyplot as plt
+    from matplotlib import rcParams, gridspec, ticker, pyplot as plt
     from matplotlib.font_manager import findfont, FontProperties
     import numpy as np
 

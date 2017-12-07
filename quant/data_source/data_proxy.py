@@ -100,3 +100,7 @@ class DataProxy(object):
 
     def get_calendar_range(self, symbol, frequency):
         return self._data_source.get_calendar_range(self.instrument(symbol), frequency)
+
+    def get_plot_bar(self, symbol, frequency, start_dt, end_dt):
+        instrument = self.instrument(symbol)
+        return self._data_source.get_plot_bar(instrument, frequency, start_dt, end_dt)

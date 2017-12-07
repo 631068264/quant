@@ -45,3 +45,13 @@ class BaseDataSource(AbstractDataSource):
             return date_bar
         except Exception as e:
             return None
+
+    def get_plot_bar(self, instrument, frequency, start_dt, end_dt):
+        try:
+            bars = get_all_bar(instrument, frequency)
+            left = bars['datetime'].searchsorted(start_dt)
+            right = bars['datetime'].searchsorted(end_dt, side='right')
+            bars = bars[left:right]
+            return bars
+        except Exception as e:
+            return None

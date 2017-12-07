@@ -216,6 +216,10 @@ class AnalyserMod(AbstractMod):
             from .plot import generate_plot
             generate_plot(result_dict, self._mod_config.plot, self._mod_config.plot_save_path)
 
+        if self._mod_config.echart_plot:
+            from .echart import generate_echart
+            generate_echart(result_dict, self._mod_config.echart_plot, savefile=None)
+
         field_list = ('trades', 'portfolio', 'benchmark_portfolio', 'crypto_account', 'crypto_positions')
         for f in field_list:
             result_dict[f] = result_dict[f].to_dict(orient='records')

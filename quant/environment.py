@@ -127,3 +127,11 @@ class Environment(object):
             from quant.util.plot_store import PlotStore
             self.plot_store = PlotStore()
         return self.plot_store
+
+    def get_plot_bar(self):
+        base_config = self.config.base
+        symbol = base_config.symbol
+        frequency = base_config.frequency
+        star_dt = base_config.start_date
+        end_dt = base_config.end_date
+        return self.data_proxy.get_plot_bar(symbol, frequency, star_dt, end_dt)

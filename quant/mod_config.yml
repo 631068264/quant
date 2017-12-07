@@ -2,7 +2,8 @@ mod:
   sys_account:
     enabled: true
   sys_analyser:
-    plot: true
+    plot: false
+    echart_plot: true
     enabled: true
   sys_progress:
     enabled: true
