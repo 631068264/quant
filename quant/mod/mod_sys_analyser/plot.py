@@ -174,6 +174,8 @@ def generate_plot(result_dict, show_windows=True, savefile=None):
         leg.get_frame().set_alpha(0.5)
 
     if show_windows:
+        # 连续显示不卡住
+        # plt.ion()
         plt.show()
 
     if savefile:

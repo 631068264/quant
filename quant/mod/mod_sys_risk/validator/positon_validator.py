@@ -14,7 +14,7 @@ class PositionValidator(AbstractValidator):
         if order.side == SIDE.BUY:
             return True
 
-        position = account.postitions[order.symbol]
+        position = account.positions[order.symbol]
         if order.amount <= position.sellable:
             return True
 

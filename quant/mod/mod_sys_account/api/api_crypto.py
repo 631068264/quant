@@ -23,7 +23,6 @@ def export_as_api(func):
 
 
 def _order(symbol, price=None, amount=None, order_type=None):
-    # TODO:处理除不尽的
     order = None
     env = Environment.get_instance()
     # 限价单
@@ -75,7 +74,7 @@ def all_out(symbol=None):
     symbol = symbol or env.config.base.symbol
     account = env.get_account_by_symbol(symbol)
     position = account.positions[symbol]
-    return market_sell(symbol, amount=position.amount)
+    return market_sell(symbol, amount=-abs(position.amount))
 
 
 @export_as_api
@@ -85,7 +84,7 @@ def market_buy(symbol, price):
 
 @export_as_api
 def market_sell(symbol, amount):
-    return _order(symbol, amount=amount, order_type=ORDER_TYPE.MARKET)
+    return _order(symbol, amount=-abs(amount), order_type=ORDER_TYPE.MARKET)
 
 
 @export_as_api

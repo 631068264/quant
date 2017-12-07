@@ -51,7 +51,7 @@ def _wrap_trade(trade):
         'amount': safe_float(trade.amount, 8),
         'price': safe_float(trade.price),
         'order_id': trade.order_id,
-        'transaction_cost': safe_float(trade.price * trade.amount),
+        # 'transaction_cost': safe_float(trade.price * trade.amount),
     }
 
 
