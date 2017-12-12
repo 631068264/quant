@@ -22,7 +22,16 @@ def export_as_api(func):
     return func
 
 
-def _order(symbol, price=None, amount=None, order_type=None):
+def _collect_signal(sinal):
+    env = Environment.get_instance()
+    # 信号统计
+    if sinal == SIDE.BUY:
+        env.buy_signal += 1
+    elif sinal == SIDE.SELL:
+        env.sell_signal += 1
+
+
+def _order(symbol, price=None, amount=None, order_type=None, signal=None):
     order = None
     env = Environment.get_instance()
     # 限价单
@@ -42,6 +51,8 @@ def _order(symbol, price=None, amount=None, order_type=None):
         elif amount is not None and amount < 0:
             side = SIDE.SELL
             order = Order.create_order(symbol, last_price, abs(amount), side, order_type)
+    _collect_signal(sinal=signal)
+    # 审核order
     if order is not None and env.can_submit_order(order):
         env.broker.submit_order(order)
 
@@ -79,18 +90,19 @@ def all_out(symbol=None):
 
 @export_as_api
 def market_buy(symbol, price):
-    return _order(symbol, price=price, order_type=ORDER_TYPE.MARKET)
+    return _order(symbol, price=price, order_type=ORDER_TYPE.MARKET, signal=SIDE.BUY)
 
 
 @export_as_api
 def market_sell(symbol, amount):
-    return _order(symbol, amount=-abs(amount), order_type=ORDER_TYPE.MARKET)
+    return _order(symbol, amount=-abs(amount), order_type=ORDER_TYPE.MARKET, signal=SIDE.SELL)
 
 
 @export_as_api
 def limit_order(symbol, price, amount):
     """
-    amount <0 for buy
-    amount > 0 for sell
+    amount > 0 for buy
+    amount <0 for sell
     """
-    return _order(symbol, price=price, amount=amount, order_type=ORDER_TYPE.LIMIT)
+    return _order(symbol, price=price, amount=amount, order_type=ORDER_TYPE.LIMIT,
+                  signal=SIDE.BUY if amount > 0 else SIDE.SELL)

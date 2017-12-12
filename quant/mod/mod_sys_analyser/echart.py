@@ -127,19 +127,25 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
     upcolor, downcolor = '#52b986', '#ec4d5c'
     buycolor, sellcolor = '#018ffe', '#cc46ed'
 
-    k_bar = Environment.get_instance().get_plot_bar()
-    trade_mark, buy_count, sell_count = KLineMakePoint(mark_size=8).mark_point(result_dict['trades'])
+    env = Environment.get_instance()
+    k_bar = env.get_plot_bar()
+    trade_mark, buy_trade, sell_trade = KLineMakePoint(mark_size=8).mark_point(result_dict['trades'])
     k_count = len(k_bar)
+    buy_signal, sell_signal = env.buy_signal, env.sell_signal
 
     label_height, value_height = 10, 40
     title = []
     fig_data = [
-        ('15%', label_height, value_height, u"buy", "{}/{} {:.3f}".format(buy_count, k_count, buy_count / k_count),
-         buycolor, black),
-        ('25%', label_height, value_height, u"sell", "{}/{} {:.3f}".format(sell_count, k_count, sell_count / k_count),
-         sellcolor, black),
-        ('35%', label_height, value_height, u"all", "{}/{} {:.3f}".format(
-            buy_count + sell_count, k_count, (buy_count + sell_count) / k_count), black, black),
+        ('5%', label_height, value_height, u"buy", "{}|{} {:.2%}".format(
+            buy_trade, buy_signal, buy_trade / buy_signal if buy_signal != 0 else 0), buycolor, black),
+        ('17%', label_height, value_height, u"sell", "{}|{} {:.2%}".format(
+            sell_trade, sell_signal, sell_trade / sell_signal if sell_signal != 0 else 0), sellcolor, black),
+        ('29%', label_height, value_height, u"成交比例", "{}|{} {:.2%}".format(
+            buy_trade + sell_trade,
+            buy_signal + sell_signal,
+            (buy_trade + sell_trade) / (buy_signal + sell_signal) if (buy_signal + sell_signal) != 0 else 0), black,
+         black),
+        ('41%', label_height, value_height, u"交易bar", "{}".format(k_count), black, black),
     ]
     for x, y1, y2, label, value, label_color, value_color in fig_data:
         title.append(Text(x, y1, label, color=label_color, fontsize=font_size))

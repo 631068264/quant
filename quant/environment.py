@@ -38,6 +38,9 @@ class Environment(object):
         self._position_dict = {}
         # validator
         self._validator = []
+        # 信号统计
+        self.buy_signal = 0
+        self.sell_signal = 0
 
     @classmethod
     def get_instance(cls):
