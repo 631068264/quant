@@ -144,10 +144,10 @@ class KLineMakePoint(BaseConfig):
             config.update(kwargs)
         self.data.append(config)
 
-    def tolist(self, df):
+    def mark_point(self, df, buycolor='#018ffe', sellcolor='#cc46ed'):
         if isinstance(df, pd.DataFrame):
-            df.apply(self.add, axis=1)
-            return self.json
+            df.apply(self.add, axis=1, buycolor=buycolor, sellcolor=sellcolor)
+            return self.json, self.buy_trade, self.sell_trade
 
     @property
     def json(self):

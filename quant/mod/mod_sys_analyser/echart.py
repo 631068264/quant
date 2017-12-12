@@ -124,8 +124,29 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
     page.add(line)
 
     # kline
-    upcolor = '#52b986'
-    downcolor = '#ec4d5c'
+    upcolor, downcolor = '#52b986', '#ec4d5c'
+    buycolor, sellcolor = '#018ffe', '#cc46ed'
+
+    k_bar = Environment.get_instance().get_plot_bar()
+    trade_mark, buy_count, sell_count = KLineMakePoint(mark_size=8).mark_point(result_dict['trades'])
+    k_count = len(k_bar)
+
+    label_height, value_height = 10, 40
+    title = []
+    fig_data = [
+        ('15%', label_height, value_height, u"buy", "{}/{} {:.3f}".format(buy_count, k_count, buy_count / k_count),
+         buycolor, black),
+        ('25%', label_height, value_height, u"sell", "{}/{} {:.3f}".format(sell_count, k_count, sell_count / k_count),
+         sellcolor, black),
+        ('35%', label_height, value_height, u"all", "{}/{} {:.3f}".format(
+            buy_count + sell_count, k_count, (buy_count + sell_count) / k_count), black, black),
+    ]
+    for x, y1, y2, label, value, label_color, value_color in fig_data:
+        title.append(Text(x, y1, label, color=label_color, fontsize=font_size))
+        title.append(Text(x, y2, value, color=value_color, fontsize=value_font_size))
+    title_chart = Chart(title=title, height=60, show_xaxis=False, show_yaxis=False)
+    page.add(title_chart)
+
     kline_chart = Chart(title=Text(text='K线交易'), height=500, animation=False, show_legend=False,
                         dataZoom=[
                             {
@@ -178,17 +199,11 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
         Axis(scale=True, axisLabel={'show': False}, axisLine={'show': False},
              axisTick={'show': False}, splitLine={'show': False}, gridIndex=1)
     ])
-    """交易mark"""
-    trades = result_dict['trades']
-    trade_mark = KLineMakePoint(mark_size=8).tolist(trades)
 
     """k线"""
-    env = Environment.get_instance()
-    k_bar = env.get_plot_bar()
     kline_data = k_bar[['open', 'close', 'low', 'high']].copy().tolist()
-    kline_chart.kline(label='k线', data=kline_data, upcolor=upcolor, downcolor=downcolor, markPoint=trade_mark)
-
-    """交易量"""
+    kline_chart.kline(label='k线', data=kline_data, upcolor=upcolor, downcolor=downcolor,
+                      markPoint=trade_mark)
 
     def color_volume(i, data):
         """交易量上色"""
@@ -196,7 +211,7 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
 
     ocv = k_bar[['open', 'close', 'volume']].copy()
     volume_data = [color_volume(i, data) for i, data in enumerate(ocv)]
-    kline_chart.bar('volume', volume_data, xAxisIndex=1, yAxisIndex=1, itemStyle={})
+    kline_chart.bar('volume', data=volume_data, xAxisIndex=1, yAxisIndex=1, itemStyle={})
 
     page.add(kline_chart)
     page.plot()

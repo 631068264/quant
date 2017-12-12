@@ -76,7 +76,7 @@ class Chart(Base):
     def set_legend(self, **kwargs):
         self.legend.update(kwargs)
 
-    def line(self, label, data, color="#000", linewidth=2, opacity=1, smooth=True, fill=False,
+    def line(self, label, data, color="#000", linewidth=2, opacity=1, smooth=True, fill=False, legend=True,
              xAxisIndex=0, yAxisIndex=0, **kwargs):
         config = {
             'lineStyle': {
@@ -107,10 +107,11 @@ class Chart(Base):
         kwargs.setdefault('lineStyle', config['lineStyle'])
         kwargs.setdefault('itemStyle', config['itemStyle'])
         kwargs.setdefault('smooth', config['smooth'])
-        self._add(label, type='line', data=data, xAxisIndex=xAxisIndex,
+        self._add(label, type='line', data=data, xAxisIndex=xAxisIndex, legend=legend,
                   yAxisIndex=yAxisIndex, **kwargs)
 
-    def kline(self, label, data, upcolor='#52b986', downcolor='#ec4d5c', opacity=1, xAxisIndex=0, yAxisIndex=0,
+    def kline(self, label, data, upcolor='#52b986', downcolor='#ec4d5c', opacity=1, legend=True, xAxisIndex=0,
+              yAxisIndex=0,
               **kwargs):
         config = {
             'itemStyle': {
@@ -124,10 +125,10 @@ class Chart(Base):
             }
         }
         kwargs.setdefault('itemStyle', config['itemStyle'])
-        self._add(label, type='candlestick', data=data, xAxisIndex=xAxisIndex,
+        self._add(label, type='candlestick', data=data, xAxisIndex=xAxisIndex, legend=legend,
                   yAxisIndex=yAxisIndex, **kwargs)
 
-    def bar(self, label, data, color='#91c7af', opacity=1, xAxisIndex=0, yAxisIndex=0, **kwargs):
+    def bar(self, label, data, color='#91c7af', opacity=1, xAxisIndex=0, yAxisIndex=0, legend=True, **kwargs):
         config = {
             'itemStyle': {
                 'normal': {
@@ -138,12 +139,12 @@ class Chart(Base):
         }
         kwargs.setdefault('itemStyle', config['itemStyle'])
         self._add(label, type='bar', data=data, xAxisIndex=xAxisIndex,
-                  yAxisIndex=yAxisIndex, **kwargs)
+                  yAxisIndex=yAxisIndex, legend=legend, **kwargs)
 
-    def _add(self, name, type, data, xAxisIndex=0,
-             yAxisIndex=0, **kwargs):
-
-        self.legend['data'].append(name)
+    def _add(self, name=None, type=None, data=None, xAxisIndex=0,
+             yAxisIndex=0, legend=True, **kwargs):
+        if legend:
+            self.legend['data'].append(name)
         series = {
             'name': name,
             'type': type,
