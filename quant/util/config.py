@@ -6,6 +6,7 @@
 @annotation = ''
 """
 import collections
+import datetime
 import os
 
 import pandas as pd
@@ -61,8 +62,13 @@ def get_all_instrument():
 
 # TODO:持久化
 def parse_config(config):
-    def parse_date(config_date):
-        return pd.Timestamp(config_date)
+    def parse_date(config_date, end=False):
+        date = datetime.datetime.strptime(config_date, '%Y-%m-%d')
+        dt = datetime.datetime.combine(
+            date.date(), time=datetime.time.max if end else datetime.time.min) \
+            .replace(microsecond=0)
+        dt = pd.Timestamp(dt)
+        return dt
 
     def parse_account(account):
         a = {account_type.name: float(start_cash) for account_type, start_cash in account.items()
@@ -74,8 +80,8 @@ def parse_config(config):
     config = AttrDict(config)
     base_config = config.base
 
-    base_config.start_date = parse_date(base_config.start_date)
-    base_config.end_date = parse_date(base_config.end_date)
+    base_config.start_date = parse_date(base_config.start_date, end=False)
+    base_config.end_date = parse_date(base_config.end_date, end=True)
     base_config.accounts = parse_account(base_config.accounts)
     assert base_config.start_date < base_config.end_date
     assert base_config.run_type in RUN_TYPE.__members__.values()
