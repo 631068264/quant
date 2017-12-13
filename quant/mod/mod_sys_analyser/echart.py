@@ -134,6 +134,8 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
     buy_signal, sell_signal = env.buy_signal, env.sell_signal
 
     label_height, value_height = 10, 40
+    profit = portfolio["unit_net_value"] - 1.0
+    profit_loss_sum = np.sum(profit[profit < 0])
     title = []
     fig_data = [
         ('5%', label_height, value_height, u"buy", "{}|{} {:.2%}".format(
@@ -146,6 +148,15 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
             (buy_trade + sell_trade) / (buy_signal + sell_signal) if (buy_signal + sell_signal) != 0 else 0), black,
          black),
         ('41%', label_height, value_height, u"交易bar", "{}".format(k_count), black, black),
+        ('51%', label_height, value_height, u"资金利用率", "{:.2%}".format(
+            1 - np.mean(portfolio['cash'] / portfolio['total_value'])), black, black),
+        ('61%', label_height, value_height, u"平均win", "{:.2%}".format(
+            np.mean(profit[profit > 0])), black, black),
+        ('71%', label_height, value_height, u"平均loss", "{:.2%}".format(
+            np.mean(profit[profit < 0])), black, black),
+        ('81%', label_height, value_height, u"盈亏比", "{:.2%}".format(
+            -(np.sum(profit[profit > 0]) / profit_loss_sum) if profit_loss_sum != 0 else 0),
+         black, black),
     ]
     for x, y1, y2, label, value, label_color, value_color in fig_data:
         title.append(Text(x, y1, label, color=label_color, fontsize=font_size))
