@@ -31,7 +31,7 @@ class Trade(object):
                      amount=0., fee=0.):
         env = Environment.get_instance()
         trade = cls()
-        trade.trade_id = next(id_gen(int(time.time())))
+        trade.trade_id = next(env.id)
         trade.order_id = order_id
         trade.create_dt = env.calendar_dt
         trade.trade_dt = env.trading_dt

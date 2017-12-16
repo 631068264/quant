@@ -5,9 +5,11 @@
 @time = 2017/5/17 16:38
 @annotation = ''
 """
+import time
 
 from quant.const import FREQUENCY
 from quant.events import EventBus
+from quant.util import id_gen
 from quant.util.config import parse_config
 
 
@@ -41,6 +43,8 @@ class Environment(object):
         # 信号统计
         self.buy_signal = 0
         self.sell_signal = 0
+        # id
+        self.id = id_gen(int(time.time()))
 
     @classmethod
     def get_instance(cls):

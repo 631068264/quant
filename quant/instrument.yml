@@ -1,2 +1,4 @@
 poloniex:
 - {fee: 0.1, min_amount: 0.01, pair: btc_usdt}
+binance:
+- {fee: 0.1, min_amount: 0.01, pair: btc_usdt}

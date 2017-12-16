@@ -27,7 +27,7 @@ class CryptoAccount(BaseAccount):
     def register_event(self):
         event_bus = Environment.get_instance().event_bus
         # 仓位控制
-        event_bus.add_listener(EVENT.TRADE, self._on_trade)
+        event_bus.prepend_listener(EVENT.TRADE, self._on_trade)
         event_bus.add_listener(EVENT.ORDER_PENDING_NEW, self._on_order_pending_new)
         event_bus.add_listener(EVENT.ORDER_CANCELLATION_PASS, self._on_order_cancel)
         event_bus.add_listener(EVENT.ORDER_UNSOLICITED_UPDATE, self._on_order_cancel)
@@ -59,8 +59,6 @@ class CryptoAccount(BaseAccount):
         if event.account != self:
             return
         trade = event.trade
-        position = self.positions[trade.symbol]
-        position.apply_trade(trade)
 
         self.trade_cost += abs(trade.price - trade.frozen_price) + trade.amount * trade.price * trade.fee
         if trade.side == SIDE.BUY:
@@ -68,6 +66,9 @@ class CryptoAccount(BaseAccount):
             self.frozen_cash -= trade.frozen_price * trade.amount
         else:
             self.total_cash += trade.price * trade.amount * (1 - trade.fee)
+
+        position = self.positions[trade.symbol]
+        position.apply_trade(trade)
 
     def _on_settlement(self, event):
         for position in list(self.positions.values()):

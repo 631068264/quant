@@ -129,39 +129,48 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
 
     env = Environment.get_instance()
     k_bar = env.get_plot_bar()
-    trade_mark, buy_trade, sell_trade = KLineMakePoint(mark_size=8).mark_point(result_dict['trades'])
+    trade_mark, buy_trade, sell_trade, avg_bar, rest_trade = KLineMakePoint(mark_size=8).mark_point(
+        result_dict['trades'])
     k_count = len(k_bar)
     buy_signal, sell_signal = env.buy_signal, env.sell_signal
 
-    label_height, value_height = 10, 40
+    label_height, value_height = 10, 35
+    label_height2, value_height2 = 70, 90
     profit = portfolio["unit_net_value"] - 1.0
     profit_loss_sum = np.sum(profit[profit < 0])
     title = []
     fig_data = [
         ('5%', label_height, value_height, u"buy", "{}|{} {:.2%}".format(
             buy_trade, buy_signal, buy_trade / buy_signal if buy_signal != 0 else 0), buycolor, black),
-        ('17%', label_height, value_height, u"sell", "{}|{} {:.2%}".format(
+        ('5%', label_height2, value_height2, u"sell", "{}|{} {:.2%}".format(
             sell_trade, sell_signal, sell_trade / sell_signal if sell_signal != 0 else 0), sellcolor, black),
-        ('29%', label_height, value_height, u"成交比例", "{}|{} {:.2%}".format(
+
+        ('17%', label_height, value_height, u"成交比例", "{}|{} {:.2%}".format(
             buy_trade + sell_trade,
             buy_signal + sell_signal,
             (buy_trade + sell_trade) / (buy_signal + sell_signal) if (buy_signal + sell_signal) != 0 else 0), black,
          black),
-        ('41%', label_height, value_height, u"交易bar", "{}".format(k_count), black, black),
-        ('51%', label_height, value_height, u"资金利用率", "{:.2%}".format(
+        ('17%', label_height2, value_height2, u"交易bar", "{}".format(k_count), black, black),
+
+        ('30%', label_height, value_height, u"平均bar", "{}".format(avg_bar), black, black),
+        ('30%', label_height2, value_height2, u"剩余交易", "{}".format(rest_trade), black, black),
+
+        ('40%', label_height, value_height, u"资金利用率", "{:.2%}".format(
             1 - np.mean(portfolio['cash'] / portfolio['total_value'])), black, black),
-        ('61%', label_height, value_height, u"平均win", "{:.2%}".format(
-            np.mean(profit[profit > 0])), black, black),
-        ('71%', label_height, value_height, u"平均loss", "{:.2%}".format(
-            np.mean(profit[profit < 0])), black, black),
-        ('81%', label_height, value_height, u"盈亏比", "{:.2%}".format(
+        ('40%', label_height2, value_height2, u"盈亏比", "{:.2%}".format(
             -(np.sum(profit[profit > 0]) / profit_loss_sum) if profit_loss_sum != 0 else 0),
          black, black),
+
+        ('50%', label_height, value_height, u"平均win", "{:.4%}".format(
+            np.mean(profit[profit > 0])), black, black),
+        ('50%', label_height2, value_height2, u"平均loss", "{:.4%}".format(
+            np.mean(profit[profit < 0])), black, black),
     ]
     for x, y1, y2, label, value, label_color, value_color in fig_data:
         title.append(Text(x, y1, label, color=label_color, fontsize=font_size))
         title.append(Text(x, y2, value, color=value_color, fontsize=value_font_size))
-    title_chart = Chart(title=title, height=60, show_xaxis=False, show_yaxis=False)
+
+    title_chart = Chart(title=title, height=150, show_xaxis=False, show_yaxis=False)
     page.add(title_chart)
 
     kline_chart = Chart(title=Text(text='K线交易'), height=500, animation=False, show_legend=False,

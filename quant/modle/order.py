@@ -36,9 +36,9 @@ class Order(object):
                      amount=0., side=None, style=None):
         env = Environment.get_instance()
         symbol = symbol or env.config.base.symbol
-        instrument = Environment.get_instance().get_instrument(symbol)
+        instrument = env.get_instrument(symbol)
         order = cls()
-        order.order_id = next(id_gen(int(time.time())))
+        order.order_id = next(env.id)
         order.create_dt = env.calendar_dt
         order.trade_dt = env.trading_dt
         order.symbol = symbol

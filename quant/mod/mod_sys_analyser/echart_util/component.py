@@ -9,6 +9,7 @@
 import pandas as pd
 
 from quant import const
+from quant.environment import Environment
 from quant.mod.mod_sys_analyser.echart_util import json_dumps
 
 
@@ -108,13 +109,13 @@ class KLineMakePoint(BaseConfig):
     def add(self, df, buycolor='#018ffe', sellcolor='#cc46ed'):
         side = df['side']
         coord = [df['trading_datetime'], df['price']]
-        if side == const.SIDE.BUY.value:
+        if side == const.SIDE.BUY.name:
             label = 'buy\n{price}\n+{amount}'.format(price=df['price'], amount=df['amount'])
             color = buycolor
             mark_rotate = 0
             label_position = 'bottom'
             self.buy_trade += 1
-        elif side == const.SIDE.SELL.value:
+        elif side == const.SIDE.SELL.name:
             label = '-{amount}\n{price}\nsell'.format(price=df['price'], amount=df['amount'])
             color = sellcolor
             mark_rotate = 180
@@ -144,10 +145,42 @@ class KLineMakePoint(BaseConfig):
             config.update(kwargs)
         self.data.append(config)
 
+    def _stat_avg_bar(self, df):
+        """in out之间平均bar数"""
+        bar_sum = 0
+        # in out 总次数
+        trade_sum = 0
+        # TODO:放在metrics
+        stack = []
+        df['trading_datetime'] = pd.to_datetime(df['trading_datetime'])
+        trade_list = df.sort_values('trading_datetime').to_dict(orient='records')
+        frequency = Environment.get_instance().config.base.frequency * 60
+
+        for t in trade_list:
+            if not stack:
+                stack.append(t)
+            else:
+                old_trade = stack[-1]
+                old_side = old_trade['side']
+                new_side = t['side']
+                amount_cond = old_trade['amount'] == t['amount']
+                if amount_cond and old_side == const.SIDE.BUY.name and new_side == const.SIDE.SELL.name:
+                    old_trade = stack.pop()
+                    diff_time = t['trading_datetime'] - old_trade['trading_datetime']
+                    diff_bar = diff_time.seconds / frequency
+                    trade_sum += 1
+                    bar_sum += diff_bar
+                # 还有其他判定条件
+                else:
+                    stack.append(t)
+
+        return round(bar_sum / trade_sum), len(stack)
+
     def mark_point(self, df, buycolor='#018ffe', sellcolor='#cc46ed'):
         if isinstance(df, pd.DataFrame):
             df.apply(self.add, axis=1, buycolor=buycolor, sellcolor=sellcolor)
-            return self.json, self.buy_trade, self.sell_trade
+            avg_bar, rest_trade = self._stat_avg_bar(df)
+            return self.json, self.buy_trade, self.sell_trade, avg_bar, rest_trade
 
     @property
     def json(self):
