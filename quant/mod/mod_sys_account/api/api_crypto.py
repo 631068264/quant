@@ -99,10 +99,12 @@ def market_sell(symbol, amount):
 
 
 @export_as_api
-def limit_order(symbol, price, amount):
+def limit_order(price, amount, symbol=None):
     """
     amount > 0 for buy
     amount <0 for sell
     """
+    env = Environment.get_instance()
+    symbol = symbol or env.config.base.symbol
     return _order(symbol, price=price, amount=amount, order_type=ORDER_TYPE.LIMIT,
                   signal=SIDE.BUY if amount > 0 else SIDE.SELL)

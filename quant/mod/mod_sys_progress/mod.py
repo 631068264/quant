@@ -27,11 +27,11 @@ class ProgressMod(AbstractMod):
 
     def _init(self, event):
         self._trading_length = len(self._env.config.base.trading_calendar)
-        self.progress_bar = click.progressbar(length=self._trading_length, show_eta=False)
+        self._progress_bar = click.progressbar(length=self._trading_length, label='BackTest...')
 
     def _on_after_trade(self, event):
-        self.progress_bar.update(1)
+        self._progress_bar.update(1)
 
     def stop(self, *args, **kwargs):
         if self._show:
-            self.progress_bar.render_finish()
+            self._progress_bar.render_finish()

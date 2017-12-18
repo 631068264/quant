@@ -20,9 +20,9 @@ class CryptoPosition(BasePosition):
 
     def apply_trade(self, trade):
         if trade.side == SIDE.BUY:
-            real_amount = trade.amount * (1 - trade.fee)
-            self.amount += real_amount
-            trade.amount = real_amount
+            deal_amount = trade.amount * (1 - trade.fee)
+            self.amount += deal_amount
+            trade.amount = deal_amount
             self.buy_price = trade.price
         else:
             self.amount -= trade.amount

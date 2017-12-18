@@ -150,6 +150,7 @@ class KLineMakePoint(BaseConfig):
         bar_sum = 0
         # in out 总次数
         trade_sum = 0
+        win = 0
         # TODO:放在metrics
         stack = []
         df['trading_datetime'] = pd.to_datetime(df['trading_datetime'])
@@ -170,17 +171,19 @@ class KLineMakePoint(BaseConfig):
                     diff_bar = diff_time.seconds / frequency
                     trade_sum += 1
                     bar_sum += diff_bar
+                    win += 1 if old_trade['price'] < t['price'] else 0
                 # 还有其他判定条件
                 else:
                     stack.append(t)
-
-        return round(bar_sum / trade_sum), len(stack)
+        if trade_sum == 0:
+            return 0, len(stack), 0
+        return round(bar_sum / trade_sum), len(stack), win / trade_sum
 
     def mark_point(self, df, buycolor='#018ffe', sellcolor='#cc46ed'):
         if isinstance(df, pd.DataFrame):
             df.apply(self.add, axis=1, buycolor=buycolor, sellcolor=sellcolor)
-            avg_bar, rest_trade = self._stat_avg_bar(df)
-            return self.json, self.buy_trade, self.sell_trade, avg_bar, rest_trade
+            avg_bar, rest_trade, win_rate = self._stat_avg_bar(df)
+            return self.json, self.buy_trade, self.sell_trade, avg_bar, rest_trade, win_rate
 
     @property
     def json(self):

@@ -62,9 +62,9 @@ class BackTestBroker(AbstractBroker):
 
     def after_trading(self, event):
         for account, order in self._open_orders:
-            order.rejected("Order Rejected: {symbol} can not match. Market close.").format(
+            order.reject("Order Rejected: {symbol} can not match. Market close.".format(
                 symbol=order.symbol
-            )
+            ))
             self._env.event_bus.publish_event(Event(EVENT.ORDER_UNSOLICITED_UPDATE, account=account, order=order))
 
     def on_bar(self, event):

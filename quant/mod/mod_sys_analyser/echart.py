@@ -129,8 +129,9 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
 
     env = Environment.get_instance()
     k_bar = env.get_plot_bar()
-    trade_mark, buy_trade, sell_trade, avg_bar, rest_trade = KLineMakePoint(mark_size=8).mark_point(
-        result_dict['trades'])
+    trade_mark, buy_trade, sell_trade, avg_bar, rest_trade, win_rate = \
+        KLineMakePoint(mark_size=8).mark_point(result_dict['trades'])
+
     k_count = len(k_bar)
     buy_signal, sell_signal = env.buy_signal, env.sell_signal
 
@@ -165,6 +166,8 @@ def generate_echart(result_dict=None, show_windows=True, savefile=None):
             np.mean(profit[profit > 0])), black, black),
         ('50%', label_height2, value_height2, u"平均loss", "{:.4%}".format(
             np.mean(profit[profit < 0])), black, black),
+
+        ('60%', label_height, value_height, u"胜率", "{:.4%}".format(win_rate), black, black),
     ]
     for x, y1, y2, label, value, label_color, value_color in fig_data:
         title.append(Text(x, y1, label, color=label_color, fontsize=font_size))

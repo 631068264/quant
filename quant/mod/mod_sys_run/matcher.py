@@ -35,10 +35,10 @@ class Matcher(object):
                         (order.price < last_price or account.cash < order.amount * order.price):
                     continue
                 if order.side == SIDE.SELL and \
-                        (order.price > last_price or account.positions[order.symbol] < order.amount):
+                        (order.price > last_price or account.positions[order.symbol].amount < order.amount):
                     continue
-
-            price = self._slippage_decider.get_trade_price(account.type, order.side, last_price)
+            deal_price = order.price if order.type == ORDER_TYPE.LIMIT else last_price
+            price = self._slippage_decider.get_trade_price(account.type, order.side, deal_price)
             trade = Trade.create_trade(
                 order_id=order.order_id,
                 symbol=order.symbol,
