@@ -77,6 +77,3 @@ class CryptoAccount(BaseAccount):
             self.positions.pop(position.symbol, None)
         self.trade_cost = 0
 
-    # def _update_last_price(self, event):
-    #     for position in self.positions.values():
-    #         position.update_last_price()

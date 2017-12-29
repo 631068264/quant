@@ -59,4 +59,5 @@ SYSTEM_MOD_LIST = [
     "sys_risk",
     "sys_progress",
     "sys_run",
+    'sys_log'
 ]

@@ -7,13 +7,13 @@
 """
 
 import click
+from quant.util.logger import sys_log
 
-from quant import const
-from quant import util
+from quant import const, util
 from quant.context import Context
 from quant.data_source import bar_store
 from quant.environment import Environment
-from quant.events import EVENT, Event
+from quant.events import Event, EVENT
 from quant.executor import Executor
 from quant.mod import ModHandler
 from quant.strategy import Strategy
@@ -79,7 +79,7 @@ def run(config, kwargs):
         result = mod_handler.stop(const.EXIT_CODE.EXIT_SUCCESS)
         return result
     except Exception as e:
-        print(util.error_msg())
+        sys_log.error(util.error_msg())
 
 
 if __name__ == '__main__':

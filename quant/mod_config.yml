@@ -11,3 +11,5 @@ mod:
     enabled: true
   sys_run:
     enabled: true
+  sys_log:
+    enabled: true

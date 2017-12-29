@@ -5,12 +5,11 @@
 @time = 2017/5/16 14:55
 @annotation = ''
 """
-import time
 
 from quant.const import ORDER_STATUS
 from quant.environment import Environment
-from quant.util import id_gen
 from quant.util import repr_print
+from quant.util.logger import order_log
 
 
 class Order(object):
@@ -30,6 +29,7 @@ class Order(object):
         self.type = None
         self.status = None
         self.message = None
+        self.env = Environment.get_instance()
 
     @classmethod
     def create_order(cls, symbol, price=0.,
@@ -80,7 +80,21 @@ class Order(object):
             self.message = reject_reason
             self.status = ORDER_STATUS.REJECTED
 
+            order_log.warn('[ORDER {status}] {id} [{symbol}]:{msg}'.format(
+                status=self.status.name,
+                id=self.order_id,
+                symbol=self.symbol,
+                msg=self.message,
+            ))
+
     def cancel(self, cancelled_reason):
         if not self.is_final():
             self.message = cancelled_reason
             self.status = ORDER_STATUS.CANCELLED
+
+            order_log.warn('[ORDER {status}] {id} [{symbol}]:{msg}'.format(
+                status=self.status.name,
+                id=self.order_id,
+                symbol=self.symbol,
+                msg=self.message,
+            ))

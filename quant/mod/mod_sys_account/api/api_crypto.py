@@ -12,6 +12,7 @@ from decimal import getcontext
 from quant.const import ORDER_TYPE, SIDE
 from quant.environment import Environment
 from quant.modle.order import Order
+from quant.util.logger import order_log
 
 __all__ = []
 getcontext().prec = 8
@@ -90,6 +91,7 @@ def all_out(symbol=None):
 
 @export_as_api
 def market_buy(symbol, price):
+    order_log.info('[{symbol}]')
     return _order(symbol, price=price, order_type=ORDER_TYPE.MARKET, signal=SIDE.BUY)
 
 
